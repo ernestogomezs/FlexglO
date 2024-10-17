@@ -134,6 +134,7 @@ class _SensorWindowState extends State<SensorWindow> {
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          
           Expanded(flex: 1, child: scopeOne)
         ],
       ),
