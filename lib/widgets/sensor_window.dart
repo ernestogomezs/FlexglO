@@ -20,7 +20,7 @@ class SensorWindowButton extends StatelessWidget{
         onTap: () {
           Navigator.push(context,
           MaterialPageRoute(builder: (context){
-              return SensorWindow();
+              return SensorWindow(muscle);
             }
           ));
         },
@@ -76,14 +76,19 @@ class SensorWindowButton extends StatelessWidget{
 }
 
 class SensorWindow extends StatefulWidget {
+  final String muscle;
+
+  SensorWindow(this.muscle);
   @override
-  _SensorWindowState createState() => _SensorWindowState();
+  _SensorWindowState createState() => _SensorWindowState(muscle);
 }
 
 class _SensorWindowState extends State<SensorWindow> {
   List<double> traceSine = [];
   double radians = 0.0;
   Timer? _timer;
+  String muscle;
+  _SensorWindowState(this.muscle);
 
   /// method to generate a Test  Wave Pattern Sets
   /// this gives us a value between +1  & -1 for sine & cosine
@@ -123,20 +128,36 @@ class _SensorWindowState extends State<SensorWindow> {
       yAxisColor: Colors.orange,
       margin: EdgeInsets.all(20.0),
       strokeWidth: 1.0,
-      backgroundColor: Colors.black,
-      traceColor: Colors.green,
+      backgroundColor: Colors.white,
+      traceColor: Colors.black,
       yAxisMax: 1.0,
       yAxisMin: -1.0,
       dataSet: traceSine,
     );
 
     return Scaffold(
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      appBar: AppBar(
+        title: Text(muscle),
+        backgroundColor: Colors.white
+      ),
+      body: Hero(
+        tag: muscle,
+        child: Column(
+          children:[
+            Expanded(
+              child: scopeOne
+            ),
+            Padding(
+              padding: const EdgeInsets.all(60.0)
+            ),
+            //Color Picker
+            Padding(
+              padding: const EdgeInsets.all(60.0)
+            )
+          ]
+        )
           
-          Expanded(flex: 1, child: scopeOne)
-        ],
       ),
     );
     // return Center(

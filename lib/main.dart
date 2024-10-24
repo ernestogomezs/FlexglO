@@ -1,12 +1,15 @@
-//import 'dart:ui';
+import 'dart:async';
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-//import 'package:oscilloscope/oscilloscope.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
-import 'sensor_window.dart';
+import 'screens/bluetooth_off_screen.dart';
+import 'screens/scan_screen.dart';
+import '../widgets/sensor_window.dart';
+import '../utils/node.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'FlexGlow App',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -33,6 +36,8 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+
+  late List<Node> nodes = [];
 
   void getNext() {
     current = WordPair.random();
@@ -65,11 +70,11 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex){ 
       case 0:
-        page = GeneratorPage();
+        page = NodesPage();
       case 1:
-        page = Placeholder();
+        page = BluetoothPage();
       case 2:
-        page = FavoritesPage();
+        page = LogPage();
       case 3:
         page = Placeholder();
       case 4:
@@ -130,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-class GeneratorPage extends StatelessWidget {
+class NodesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -144,84 +149,135 @@ class GeneratorPage extends StatelessWidget {
     // }
 
     return Center(
-      // child: Column(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-        child:Stack(
-          alignment: AlignmentDirectional.center,
-          children:<Widget>[
-            SvgPicture.asset(
-                  'assets/images/men_vector.svg', 
-                  width: 250,
-                  height: 250
-            ),
-            Positioned(
-              left: 5,
-              top: 30,
-              child: SensorWindowButton('leftBicep')
-            ),
-            Positioned(
-              right: 5,
-              top: 30,
-              child: SensorWindowButton('rightBicep')
-            ),
-            Positioned(
-              left: 0,
-              top: 60,
-              child: SensorWindowButton('leftTricep')
-            ),
-            Positioned(
-              right: 0,
-              top: 60,
-              child: SensorWindowButton('rightTricep')
-            ),
-            Positioned(
-              left: 60,
-              top: 70,
-              child: SensorWindowButton('leftPect')
-            ),
-            Positioned(
-              right: 60,
-              top: 70,
-              child: SensorWindowButton('rightPect')
-            ),
-            Positioned(
-              left: 30,
-              bottom: 60,
-              child: SensorWindowButton('leftDelt')
-            ),
-            Positioned(
-              right: 30,
-              bottom: 60,
-              child: SensorWindowButton('rightDelt')
-            )
-            //BigCard(pair: pair),
-            //SizedBox(height: 10),
-            // Row(
-            //   mainAxisSize: MainAxisSize.min,
-            //   children: [
-            //     ElevatedButton.icon(
-            //       onPressed: () {
-            //         appState.toggleFavorite();
-            //       },
-            //       icon: Icon(icon),
-            //       label: Text('Like'),
-            //     ),
-            //     SizedBox(width: 10),
-            //     ElevatedButton(
-            //       onPressed: () {
-            //         appState.getNext();
-            //       },
-            //       child: Text('Next'),
-            //     ),
-            //   ],
-            // ),
-          ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Stack(
+            alignment: AlignmentDirectional.center,
+            children:<Widget>[
+              SvgPicture.asset(
+                    'assets/images/men_vector.svg', 
+                    width: 250,
+                    height: 250
+              ),
+              Positioned(
+                left: 5,
+                top: 30,
+                child: SensorWindowButton('Left Bicep')
+              ),
+              Positioned(
+                right: 5,
+                top: 30,
+                child: SensorWindowButton('Right Bicep')
+              ),
+              Positioned(
+                left: 0,
+                top: 60,
+                child: SensorWindowButton('Left Tricep')
+              ),
+              Positioned(
+                right: 0,
+                top: 60,
+                child: SensorWindowButton('Right Tricep')
+              ),
+              Positioned(
+                left: 60,
+                top: 70,
+                child: SensorWindowButton('Left Pectoral')
+              ),
+              Positioned(
+                right: 60,
+                top: 70,
+                child: SensorWindowButton('Right Pectoral')
+              ),
+              Positioned(
+                left: 30,
+                bottom: 60,
+                child: SensorWindowButton('Left Deltoid')
+              ),
+              Positioned(
+                right: 30,
+                bottom: 60,
+                child: SensorWindowButton('Right Deltoid')
+              )
+            ],
+          )
+        ]
       ),
     );
   }
 }
 
-class FavoritesPage extends StatelessWidget{
+class BluetoothPage extends StatefulWidget {
+  const BluetoothPage({Key? key}) : super(key: key);
+
+  @override
+  State<BluetoothPage> createState() => _BluetoothPageState();
+}
+
+class _BluetoothPageState extends State<BluetoothPage> {
+  BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
+  late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
+      _adapterState = state;
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _adapterStateStateSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    Widget screen = _adapterState == BluetoothAdapterState.on
+        ? ScanScreen(nodes: appState.nodes)
+        : BluetoothOffScreen(adapterState: _adapterState);
+
+    return MaterialApp(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      home: screen,
+      navigatorObservers: [BluetoothAdapterStateObserver()],
+    );
+  }
+}
+
+class BluetoothAdapterStateObserver extends NavigatorObserver {
+  StreamSubscription<BluetoothAdapterState>? _adapterStateSubscription;
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    super.didPush(route, previousRoute);
+    if (route.settings.name == '/DeviceScreen') {
+      // Start listening to Bluetooth state changes when a new route is pushed
+      _adapterStateSubscription ??= FlutterBluePlus.adapterState.listen((state) {
+        if (state != BluetoothAdapterState.on) {
+          // Pop the current route if Bluetooth is off
+          navigator?.pop();
+        }
+      });
+    }
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    super.didPop(route, previousRoute);
+    // Cancel the subscription when the route is popped
+    _adapterStateSubscription?.cancel();
+    _adapterStateSubscription = null;
+  }
+}
+
+class LogPage extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     var appState = context.watch<MyAppState>();
@@ -249,33 +305,3 @@ class FavoritesPage extends StatelessWidget{
   }
 
 }
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Text(
-          pair.asLowerCase, 
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}"),
-      ),
-    );
-  }
-}
-
-
