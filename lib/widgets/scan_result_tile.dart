@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class ScanResultTile extends StatefulWidget {
-  ScanResultTile({Key? key, required this.result});//, required this.onTap});
+  ScanResultTile({Key? key, required this.result, required this.onTap});//, required this.onTap});
 
   final ScanResult result;
-  //final VoidCallback? onTap;
+  final VoidCallback? onTap;
 
   @override
   State<ScanResultTile> createState() => _ScanResultTileState();
@@ -76,21 +76,20 @@ class _ScanResultTileState extends State<ScanResultTile> {
     }
   }
 
-  // Widget _buildConnectButton(BuildContext context) {
-  //   return ElevatedButton(
-  //     child: isConnected ? const Text('OPEN') : const Text('CONNECT'),
-  //     style: ElevatedButton.styleFrom(
-  //       backgroundColor: Colors.black,
-  //       foregroundColor: Colors.white,
-  //     ),
-  //     onPressed: (widget.result.advertisementData.connectable) ? widget.onTap : null,
-  //   );
-  // }
+  Widget _buildConnectButton(BuildContext context) {
+    return ElevatedButton(
+      child: const Text('CONNECT'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
+      onPressed: (widget.result.advertisementData.connectable) ? widget.onTap : null,
+    );
+  }
 
   Widget _buildConnectedStatusLight(BuildContext context){
     return CircleAvatar(
-      backgroundColor: isConnected? Colors.green : 
-                      (widget.result.advertisementData.connectable)? Colors.orange : 
+      backgroundColor: (widget.result.advertisementData.connectable)? Colors.orange : 
                       Colors.grey,
       radius: 5,
     );
@@ -130,16 +129,14 @@ class _ScanResultTileState extends State<ScanResultTile> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5)
           ),
-          //_buildConnectButton(context)
+          _buildConnectButton(context)
         ]
       ),
       // leading: Text(widget.result.rssi.toString()),
       // trailing: _buildConnectButton(context),
       children: <Widget>[
-        _buildAdvRow(
-          context,
-          "Device's Remote UUID",
-          widget.result.device.remoteId.str,
+        _buildAdvRow(context,
+          "Device's Remote UUID", widget.result.device.remoteId.str,
         )
         // for(BluetoothService service in widget.result.device.servicesList){
         //   for (BluetoothCharacteristic characteristic in service.characteristics){

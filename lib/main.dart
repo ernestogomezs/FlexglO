@@ -10,6 +10,7 @@ import 'screens/bluetooth_off_screen.dart';
 import 'screens/scan_screen.dart';
 import '../widgets/sensor_window.dart';
 import '../utils/node.dart';
+import '../utils/snackbar.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
 
-  late List<Node> nodes = [];
+  late List<Node> nodes = [Node.def(0)];
 
   void getNext() {
     current = WordPair.random();
@@ -148,62 +149,54 @@ class NodesPage extends StatelessWidget {
     //   icon = Icons.favorite_border;
     // }
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Stack(
-            alignment: AlignmentDirectional.center,
-            children:<Widget>[
-              SvgPicture.asset(
-                    'assets/images/men_vector.svg', 
-                    width: 250,
-                    height: 250
+    return ScaffoldMessenger(
+      key: Snackbar.snackBarKeyA,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Central - Examine Nodes'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Stack(
+                alignment: AlignmentDirectional.center,
+                children:<Widget>[
+                  SvgPicture.asset(
+                        'assets/images/men_vector.svg', 
+                        width: 250,
+                        height: 250
+                  ),
+                  Positioned(
+                    left: 5, top: 30, child: SensorWindowButton('Left Bicep')
+                  ),
+                  Positioned(
+                    right: 5, top: 30, child: SensorWindowButton('Right Bicep')
+                  ),
+                  Positioned(
+                    left: 0, top: 60, child: SensorWindowButton('Left Tricep')
+                  ),
+                  Positioned(
+                    right: 0, top: 60, child: SensorWindowButton('Right Tricep')
+                  ),
+                  Positioned(
+                    left: 60, top: 70, child: SensorWindowButton('Left Pectoral')
+                  ),
+                  Positioned(
+                    right: 60, top: 70, child: SensorWindowButton('Right Pectoral')
+                  ),
+                  Positioned(
+                    left: 30, bottom: 60, child: SensorWindowButton('Left Deltoid')
+                  ),
+                  Positioned(
+                    right: 30, bottom: 60, child: SensorWindowButton('Right Deltoid')
+                  )
+                ]
               ),
-              Positioned(
-                left: 5,
-                top: 30,
-                child: SensorWindowButton('Left Bicep')
-              ),
-              Positioned(
-                right: 5,
-                top: 30,
-                child: SensorWindowButton('Right Bicep')
-              ),
-              Positioned(
-                left: 0,
-                top: 60,
-                child: SensorWindowButton('Left Tricep')
-              ),
-              Positioned(
-                right: 0,
-                top: 60,
-                child: SensorWindowButton('Right Tricep')
-              ),
-              Positioned(
-                left: 60,
-                top: 70,
-                child: SensorWindowButton('Left Pectoral')
-              ),
-              Positioned(
-                right: 60,
-                top: 70,
-                child: SensorWindowButton('Right Pectoral')
-              ),
-              Positioned(
-                left: 30,
-                bottom: 60,
-                child: SensorWindowButton('Left Deltoid')
-              ),
-              Positioned(
-                right: 30,
-                bottom: 60,
-                child: SensorWindowButton('Right Deltoid')
-              )
-            ],
+            ]
           )
-        ]
-      ),
+        ),
+      )
     );
   }
 }
@@ -222,6 +215,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
   @override
   void initState() {
     super.initState();
+    print("APP STARTING AAAAAAAAA");
     _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       _adapterState = state;
       if (mounted) {

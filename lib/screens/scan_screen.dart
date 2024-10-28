@@ -25,6 +25,8 @@ class _ScanScreenState extends State<ScanScreen> {
   late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
   late StreamSubscription<bool> _isScanningSubscription;
 
+  final ValueNotifier<int> _value = ValueNotifier<int>(0);
+
   int amtNodes = 1;
 
   //Remote IDs
@@ -75,6 +77,9 @@ class _ScanScreenState extends State<ScanScreen> {
         Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
       }
     }
+    var newNode =  Node(result.device);
+    newNode.init();
+    widget.nodes[0] = newNode;
   }
 
   void onConnectAll() async{
@@ -83,7 +88,6 @@ class _ScanScreenState extends State<ScanScreen> {
       await onConnect(result);
       var newNode =  Node(result.device);
       newNode.init();
-      widget.nodes.add(newNode);
     }
     _allNodesConnected = true;
   }
@@ -100,13 +104,11 @@ class _ScanScreenState extends State<ScanScreen> {
   Future onRefresh() {
     if (_isScanning == false) {
       // Get the remote Ids of the connected nodes
-      var connectedNodesRemoteIds = widget.nodes.map(
-          (node) => node.device.remoteId.toString()
-        ).toSet();
+
       // Scan the BLE devices in the netword with the allowed remote IDs, 
       // excluding the ones that are already connected
       FlutterBluePlus.startScan(
-        withRemoteIds: SCANFORDEVICES.toSet().difference(connectedNodesRemoteIds).toList(), 
+        withRemoteIds: SCANFORDEVICES, 
         timeout: const Duration(seconds: 15)
       );
     }
@@ -148,8 +150,8 @@ class _ScanScreenState extends State<ScanScreen> {
           return FloatingActionButton.extended(
             onPressed: () => onConnectAll(),
             label: const Text("CONNECT ALL"),
-            backgroundColor: Colors.lightBlue, 
-            foregroundColor: Colors.black,
+            backgroundColor: Colors.blue, 
+            foregroundColor: Colors.white,
           );
         }
       }
@@ -171,7 +173,7 @@ class _ScanScreenState extends State<ScanScreen> {
       .map(
         (r) => ScanResultTile(
           result: r,
-          // onTap: () => onConnectPressed(r.device),
+          onTap: () => onConnect(r),
         ),
       )
       .toList();
@@ -194,10 +196,8 @@ class _ScanScreenState extends State<ScanScreen> {
                 "Scroll down to refresh",
                 style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.grey),
               )),
-              if(_allNodesConnected)
-                ..._buildNodeTiles(context)
-              else
-                ... _buildScanResultTiles(context)
+              ..._buildNodeTiles(context),
+              ..._buildScanResultTiles(context)
             ],
           ),
         ),

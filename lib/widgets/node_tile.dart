@@ -11,10 +11,10 @@ class NodeTile extends StatefulWidget {
   final Node node;
 
   @override
-  State<NodeTile> createState() => _ScanResultTileState();
+  State<NodeTile> createState() => _NodeTileState();
 }
 
-class _ScanResultTileState extends State<NodeTile> {
+class _NodeTileState extends State<NodeTile> {
   BluetoothConnectionState _connectionState = BluetoothConnectionState.disconnected;
   late StreamSubscription<BluetoothConnectionState> _connectionStateSubscription;
 
@@ -56,24 +56,17 @@ class _ScanResultTileState extends State<NodeTile> {
   }
 
   Widget _buildTitle(BuildContext context) {
-    if (widget.node.device.platformName.isNotEmpty) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            widget.node.device.platformName,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            widget.node.device.remoteId.str,
-            style: Theme.of(context).textTheme.bodySmall,
-          )
-        ],
-      );
-    } else {
-      return Text(widget.node.device.remoteId.str);
-    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          "Node ${widget.node.id.toString()}",
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontWeight: FontWeight.bold)
+        ),
+      ],
+    );
   }
 
   Widget _buildConnectedStatusLight(){
@@ -105,11 +98,37 @@ class _ScanResultTileState extends State<NodeTile> {
     );
   }
 
+  Widget _buildListenableRow(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(title, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(
+            width: 12.0,
+          ),
+          Expanded(
+            child: ValueListenableBuilder<List<int>>(
+              valueListenable: widget.node.valuebytesL,
+              builder: (BuildContext context, List<int> value, Widget? child){
+                return Text(
+                  value.toString(),
+                );
+              },
+            )
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
   //   var adv = widget.result.advertisementData;
     return ExpansionTile(
-      backgroundColor: Colors.lightBlueAccent,
+      collapsedBackgroundColor: Colors.grey,
+      backgroundColor: Colors.grey,
       title: _buildTitle(context),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -123,11 +142,11 @@ class _ScanResultTileState extends State<NodeTile> {
         _buildAdvRow(context,
           "Device's Remote UUID", widget.node.device.remoteId.str,
         ),
-        _buildAdvRow(context,
+        if(isConnected) _buildAdvRow(context,
           "Service UUID", widget.node.service.serviceUuid.toString().toUpperCase(), 
         ),
-        _buildAdvRow(context,
-          "Characteristic Value", widget.node.valuebytes.toString(),
+        if(isConnected) _buildListenableRow(context,
+          "Characteristic Value"
         ),
         // for(BluetoothService service in widget.result.device.servicesList){
         //   for (BluetoothCharacteristic characteristic in service.characteristics){
