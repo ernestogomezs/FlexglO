@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:namer_app/main.dart';
+import 'package:provider/provider.dart';
 
 import '../utils/node.dart';
 import '../utils/snackbar.dart';
@@ -10,9 +12,7 @@ import '../widgets/node_tile.dart';
 import '../utils/extra.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({Key? key, required this.nodes}) : super(key: key);
-
-  final List<Node> nodes;
+  const ScanScreen({Key? key}) : super(key: key);
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -24,8 +24,6 @@ class _ScanScreenState extends State<ScanScreen> {
   bool _isScanning = false;
   late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
   late StreamSubscription<bool> _isScanningSubscription;
-
-  final ValueNotifier<int> _value = ValueNotifier<int>(0);
 
   int amtNodes = 1;
 
@@ -77,9 +75,13 @@ class _ScanScreenState extends State<ScanScreen> {
         Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
       }
     }
-    var newNode =  Node(result.device);
-    newNode.init();
-    widget.nodes[0] = newNode;
+    
+    if(mounted){
+      var newNode =  Node(result.device);
+      newNode.init();
+      Provider.of<MyAppState>(context, listen: false).replaceNode(newNode.id, newNode);
+      setState(() {});
+    }
   }
 
   void onConnectAll() async{
@@ -92,15 +94,6 @@ class _ScanScreenState extends State<ScanScreen> {
     _allNodesConnected = true;
   }
 
-  // void onConnectPressed(BluetoothDevice device) {
-  //   device.connectAndUpdateStream().catchError((e) {
-  //     Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
-  //   });
-  //   MaterialPageRoute route = MaterialPageRoute(
-  //       builder: (context) => DeviceScreen(device: device), settings: RouteSettings(name: '/DeviceScreen'));
-  //   Navigator.of(context).push(route);
-  // }
-
   Future onRefresh() {
     if (_isScanning == false) {
       // Get the remote Ids of the connected nodes
@@ -108,7 +101,7 @@ class _ScanScreenState extends State<ScanScreen> {
       // Scan the BLE devices in the netword with the allowed remote IDs, 
       // excluding the ones that are already connected
       FlutterBluePlus.startScan(
-        withRemoteIds: SCANFORDEVICES, 
+        withKeywords: ["Node"], 
         timeout: const Duration(seconds: 15)
       );
     }
@@ -159,13 +152,16 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   List<Widget> _buildNodeTiles(BuildContext context) {
-    return widget.nodes
+    return Provider.of<MyAppState>(context, listen: false).nodes
       .map(
         (d) => NodeTile(
-          node: d,
+          nodeId: "${d.id}",
+          serviceUuidNotifier: d.serviceUuidNotifier,
+          connectionNotifier: d.connectionStateNotifier,
+          flexNotifier: d.flexBytesNotifier,
         ),
       )
-      .toList();
+    .toList();
   }
 
   List<Widget> _buildScanResultTiles(BuildContext context) {
@@ -181,6 +177,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return ScaffoldMessenger(
       key: Snackbar.snackBarKeyB,
       child: Scaffold(

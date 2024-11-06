@@ -3,22 +3,28 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
+const String DEF_ID = "00000000-0000-0000-0000-000000000000";
+
 class Node{
   late int id;
   late BluetoothDevice device;
   late BluetoothService service;
+  late ValueNotifier<String> serviceUuidNotifier = ValueNotifier<String> ("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"); 
 
-  late BluetoothCharacteristic valueCharacteristic;
-  late StreamSubscription<List<int>> _lastValueSubscription;
-  List<int> valuebytes = [];
-  final ValueNotifier<List<int>> valuebytesL = ValueNotifier<List<int>>([]);
+  late BluetoothCharacteristic flexCharacteristic;
+  late StreamSubscription<List<int>> lastFlexSub;
+  late ValueNotifier<List<int>> flexBytesNotifier = ValueNotifier<List<int>>([]);
   
-  // late BluetoothCharacteristic colorCharacteristic;
-  // late StreamSubscription<List<int>> _lastColorSubscription;
-  // List<int> colorbytes = [];
+  late BluetoothCharacteristic gloCharacteristic;
+  late StreamSubscription<List<int>> lastGloSub;
+  late ValueNotifier<List<int>> gloBytesNotifier;
+
+  late StreamSubscription<List<int>> connectionStateSub;
+  late ValueNotifier<bool> connectionStateNotifier = ValueNotifier<bool>(isConnected);
+
 
   Node.def(this.id){
-    device = BluetoothDevice.fromId("e006b3a7-ef7b-4980-a668-1f8005f84383");
+    device = BluetoothDevice.fromId(DEF_ID);
   }
 
   Node(this.device); 
@@ -27,32 +33,43 @@ class Node{
     id = int.parse(device.platformName.substring(device.platformName.length - 1));
     List<BluetoothService> services = await device.discoverServices();
     service = services[0];
+    serviceUuidNotifier.value = service.serviceUuid.toString();
 
-    valueCharacteristic = service.characteristics[0];
-    final _lastValueSubscription = valueCharacteristic.lastValueStream.listen((valuein) {
-      print(valuein);      
-      valuebytesL.value = valuein;
+    flexCharacteristic = service.characteristics[0];
+
+    print(service.toString());
+    print(flexCharacteristic.toString());
+
+    final connectionStateSub = device.connectionState.listen((state) {
+      connectionStateNotifier.value = state == BluetoothConnectionState.connected;
     });
-    device.cancelWhenDisconnected(_lastValueSubscription);
-    // await valueCharacteristic.setNotifyValue(true);
 
-    // colorCharacteristic = service.characteristics[1];
-    // final _lastColorSubscription = colorCharacteristic.lastValueStream.listen((value) {
+    final lastFlexSub = flexCharacteristic.onValueReceived.listen((valuein) {
+      print(valuein);      
+      flexBytesNotifier.value = valuein;
+    });
+    device.cancelWhenDisconnected(lastFlexSub);
+    flexCharacteristic.setNotifyValue(true);
+
+    // gloCharacteristic = service.characteristics[1];
+    // final lastGloSub = colorCharacteristic.lastValueStream.listen((value) {
     //   colorbytes = value;
     // });
     // device.cancelWhenDisconnected(_lastColorSubscription);
     //await colorCharacteristic.setNotifyValue(true);
   }
 
-  bool get isConnected => device.isConnected;
+  bool get isConnected {
+    return (device.remoteId.toString() == DEF_ID)? device.isConnected : false;
+  } 
 
-  get value{
-    valueCharacteristic.read();
-    return valuebytes;
-  }
+  // get flex{
+  //   flexCharacteristic.read();
+  //   return flexBytes;
+  // }
 
   // get color{
-  //   colorCharacteristic.read();
-  //   return colorbytes;
+  //   gloCharacteristic.read();
+  //   return gloBytes;
   // }
 }
