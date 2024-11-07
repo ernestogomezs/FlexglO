@@ -12,7 +12,6 @@ class NodeTile extends StatefulWidget {
   final ValueNotifier<String> serviceUuidNotifier;
   final ValueNotifier<bool> connectionNotifier;
   final ValueNotifier<List<int>> flexNotifier;
-  
 
   @override
   State<NodeTile> createState() => _NodeTileState();
@@ -115,7 +114,7 @@ class _NodeTileState extends State<NodeTile> {
                 return isConnected ?
                   _buildAdvRow(context,
                     "Device's Remote UUID",
-                    service_uuid
+                    service_uuid.toUpperCase()
                   ) : Container();
               }
             ),  
@@ -123,7 +122,7 @@ class _NodeTileState extends State<NodeTile> {
               builder: (context) {
                 return isConnected ?
                   _buildFlexRow(context,
-                    "Flex Characteristic Values"
+                    "Flex Values"
                   ) : Container();
               }
             ) 

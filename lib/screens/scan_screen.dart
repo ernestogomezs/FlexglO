@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:namer_app/main.dart';
+import 'package:flexglow_app/main.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/node.dart';

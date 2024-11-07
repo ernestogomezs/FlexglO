@@ -3,14 +3,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:oscilloscope/oscilloscope.dart';
-
-// import 'hero_dialog_route.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class SensorWindowButton extends StatelessWidget{
-  // const SensorWindowButton({super.key});
-  final String muscle;
+  SensorWindowButton({Key? key, required this.muscle, required this.flexNotifier});
 
-  SensorWindowButton(this.muscle);
+  final String muscle;
+  final ValueNotifier<double> flexNotifier;
 
   @override
   Widget build(BuildContext context){
@@ -18,11 +17,12 @@ class SensorWindowButton extends StatelessWidget{
       padding: const EdgeInsets.all(32.0),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(context,
-          MaterialPageRoute(builder: (context){
-              return SensorWindow(muscle);
-            }
-          ));
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context){
+                return SensorWindow(muscle, flexNotifier);
+              }
+            )
+          );
         },
         child: Hero(
           tag: muscle,
@@ -41,78 +41,58 @@ class SensorWindowButton extends StatelessWidget{
         ),
       ),
     );
-
-
-
-
-    // return Padding(
-    //   padding: const EdgeInsets.all(32.0),
-    //   child: GestureDetector(
-    //     onTap: () {
-    //       Navigator.of(context).push(HeroDialogRoute(
-    //         builder: (context){
-    //           return _SensorWindowPopupCard();
-    //         }
-    //       ));
-    //     },
-    //     child: Hero(
-    //       tag: _heroSensorWindow,
-    //       child: Material(
-    //         color: Colors.blueGrey,
-    //         elevation: 2,
-    //         shape: RoundedRectangleBorder(
-    //           borderRadius: BorderRadius.circular(22)
-    //         ),
-    //         child: const Icon(
-    //           Icons.circle,
-    //           size: 26,
-    //           color: Colors.white
-    //         ),
-    //       )
-    //     ),
-    //   )
-    // );
   }
 }
 
 class SensorWindow extends StatefulWidget {
-  final String muscle;
+  SensorWindow(this.muscle, this.muscleIntensityNotify);
 
-  SensorWindow(this.muscle);
+  final String muscle;
+  late ValueNotifier<double> muscleIntensityNotify;
+
   @override
-  _SensorWindowState createState() => _SensorWindowState(muscle);
+  SensorWindowState createState() => SensorWindowState();
 }
 
-class _SensorWindowState extends State<SensorWindow> {
-  List<double> traceSine = [];
+class SensorWindowState extends State<SensorWindow> {
+  List<double> trace = [];
   double radians = 0.0;
   Timer? _timer;
-  String muscle;
-  _SensorWindowState(this.muscle);
+  Color CurrentColor = Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0);
+  List<Color> CurrentColors = [
+    Color.fromRGBO(0xFF, 0, 0, 1.0),
+    Color.fromRGBO(0, 0xFF, 0, 1.0),
+    Color.fromRGBO(0, 0, 0xFF, 1.0),
+    Color.fromRGBO(0, 0xFF, 0xFF, 1.0),
+    Color.fromRGBO(0xFF, 0, 0xFF, 1.0),
+    Color.fromRGBO(0xFF, 0xFF, 0, 1.0),
+    Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0)
+  ];
 
-  /// method to generate a Test  Wave Pattern Sets
-  /// this gives us a value between +1  & -1 for sine & cosine
+  /// method to generate wave pattern
   _generateTrace(Timer t) {
-    // generate our  values
-    var sv = sin((radians * pi));
+    // Read latest value
+    double muscleIntensityValue = widget.muscleIntensityNotify.value;
 
-    // Add to the growing dataset
+    // Add latest read value to the growing dataset
     setState(() {
-      traceSine.add(sv);
+      trace.add(muscleIntensityValue);
     });
+  }
 
-    // adjust to recyle the radian value ( as 0 = 2Pi RADS)
-    radians += 0.05;
-    if (radians >= 2.0) {
-      radians = 0.0;
-    }
+  void changeColor(Color color) {
+    setState(() => CurrentColor = color);
+  }
+
+  void changeColors(List<Color> colors) {
+    setState(() => CurrentColors = colors);
   }
 
   @override
   initState() {
     super.initState();
     // create our timer to generate test values
-    _timer = Timer.periodic(Duration(milliseconds: 60), _generateTrace);
+    _timer = Timer.periodic(Duration(milliseconds: 10), _generateTrace);
   }
 
   @override
@@ -125,72 +105,41 @@ class _SensorWindowState extends State<SensorWindow> {
   Widget build(BuildContext context){
     Oscilloscope scopeOne = Oscilloscope(
       showYAxis: true,
-      yAxisColor: Colors.orange,
+      yAxisColor: Colors.grey,
       margin: EdgeInsets.all(20.0),
       strokeWidth: 1.0,
       backgroundColor: Colors.white,
       traceColor: Colors.black,
-      yAxisMax: 1.0,
+      yAxisMax: 500.0,
       yAxisMin: -1.0,
-      dataSet: traceSine,
+      dataSet: trace,
     );
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       appBar: AppBar(
-        title: Text(muscle),
+        title: Text(widget.muscle),
         backgroundColor: Colors.white
       ),
       body: Hero(
-        tag: muscle,
+        tag: widget.muscle,
         child: Column(
           children:[
             Expanded(
               child: scopeOne
             ),
             Padding(
-              padding: const EdgeInsets.all(60.0)
-            ),
-            //Color Picker
-            Padding(
-              padding: const EdgeInsets.all(60.0)
+              padding: const EdgeInsets.all(60.0),
+              child: MultipleChoiceBlockPicker(
+                pickerColors: CurrentColors,
+                onColorsChanged: changeColors,
+              )
             )
           ]
         )
           
       ),
     );
-    // return Center(
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(32.0),
-    //     child: Hero(
-    //       tag:_heroSensorWindow,
-    //       child: Material(
-    //         color: Colors.white,
-    //         elevation: 2,
-    //         shape: RoundedRectangleBorder(
-    //           borderRadius: BorderRadius.circular(32)
-    //         ),
-    //         child: SingleChildScrollView(
-    //           child: Padding(
-    //             padding: const EdgeInsets.all(16.0),
-    //             child: Column(
-    //               mainAxisSize: MainAxisSize.min,
-    //               children: [
-    //                 //Exit button
-    //                   Hero
-    //                 //Title
-    //                   Text('Window')
-    //                 //Oscilloscope View
-    //                 //Color Change
-    //               ]
-    //             )
-    //           )
-    //         ),
-    //       )
-    //     )
-    //   )
-    // );
   }
 }
 

@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  List<Node> nodes = [Node.def(0)];
+  List<Node> nodes = [Node.def(0), Node.def(1), Node.def(2), Node.def(3), Node.def(4)];
   BluetoothAdapterState adapterState = BluetoothAdapterState.unknown;
   late StreamSubscription<BluetoothAdapterState> adapterStateStateSubscription;
 
@@ -168,28 +168,80 @@ class NodesPage extends StatelessWidget {
                         height: 250
                   ),
                   Positioned(
-                    left: 5, top: 30, child: SensorWindowButton('Left Bicep')
+                    left: 5, top: 30, 
+                    child: SensorWindowButton(
+                      muscle: 'Left Bicep', 
+                      flexNotifier: appState.nodes[1].m0_Notifier
+                    )
                   ),
                   Positioned(
-                    right: 5, top: 30, child: SensorWindowButton('Right Bicep')
+                    right: 5, top: 30, 
+                    child: SensorWindowButton(
+                      muscle: 'Right Bicep',
+                      flexNotifier: appState.nodes[4].m0_Notifier
+                    )
                   ),
                   Positioned(
-                    left: 0, top: 60, child: SensorWindowButton('Left Tricep')
+                    left: 0, top: 60, 
+                    child: SensorWindowButton(
+                      muscle: 'Left Tricep',
+                      flexNotifier: appState.nodes[1].m1_Notifier
+                    )
                   ),
                   Positioned(
-                    right: 0, top: 60, child: SensorWindowButton('Right Tricep')
+                    right: 0, top: 60, 
+                    child: SensorWindowButton(
+                      muscle: 'Right Tricep',
+                      flexNotifier: appState.nodes[4].m1_Notifier
+                    )
                   ),
                   Positioned(
-                    left: 60, top: 70, child: SensorWindowButton('Left Pectoral')
+                    left: 60, top: 70, 
+                    child: SensorWindowButton(
+                      muscle: 'Left Pectoral',
+                      flexNotifier: appState.nodes[0].m0_Notifier
+                    )
                   ),
                   Positioned(
-                    right: 60, top: 70, child: SensorWindowButton('Right Pectoral')
+                    right: 60, top: 70, 
+                    child: SensorWindowButton(
+                      muscle: 'Right Pectoral',
+                      flexNotifier: appState.nodes[0].m1_Notifier
+                    )
                   ),
                   Positioned(
-                    left: 30, bottom: 60, child: SensorWindowButton('Left Deltoid')
+                    left: 30, bottom: 60, 
+                    child: SensorWindowButton(
+                      muscle: 'Left Deltoid',
+                      flexNotifier: appState.nodes[2].m1_Notifier
+                    )
                   ),
                   Positioned(
-                    right: 30, bottom: 60, child: SensorWindowButton('Right Deltoid')
+                    right: 30, bottom: 60, 
+                    child: SensorWindowButton(
+                      muscle: 'Right Deltoid',
+                      flexNotifier: appState.nodes[3].m1_Notifier
+                    )
+                  ),
+                  Positioned(
+                    left: 40, top: 40, 
+                    child: SensorWindowButton(
+                      muscle: 'Left Shoulder',
+                      flexNotifier: appState.nodes[2].m0_Notifier
+                    )
+                  ),
+                  Positioned(
+                    right: 40, top: 40, 
+                    child: SensorWindowButton(
+                      muscle: 'Right Shoulder',
+                      flexNotifier: appState.nodes[3].m0_Notifier
+                    )
+                  ),
+                  Positioned(
+                    child: SensorWindowButton(
+                      muscle: 'Heart',
+                      flexNotifier: appState.nodes[0].heart_Notifier
+                    )
                   )
                 ]
               ),
