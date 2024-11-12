@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 const String DEFAULT_ID = "00000000-0000-0000-0000-000000000000";
@@ -12,18 +12,15 @@ class Node{
   late ValueNotifier<String> serviceUuidNotifier = ValueNotifier<String> ("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"); 
 
   late BluetoothCharacteristic flexCharacteristic;
-  //late StreamSubscription<List<int>> lastFlexSub;
   late ValueNotifier<List<int>> flexBytesNotifier = ValueNotifier<List<int>>([]);
 
-  late ValueNotifier<double> m0_Notifier    = ValueNotifier<double>(0.0);
-  late ValueNotifier<double> m1_Notifier    = ValueNotifier<double>(0.0);
-  late ValueNotifier<double> heart_Notifier = ValueNotifier<double>(0.0);
+  late ValueNotifier<int> m0Notifier  = ValueNotifier<int>(0);
+  late ValueNotifier<int> m1Notifier  = ValueNotifier<int>(0);
+  late ValueNotifier<int> bpmNotifier = ValueNotifier<int>(0);
   
   late BluetoothCharacteristic gloCharacteristic;
-  late StreamSubscription<List<int>> lastGloSub;
   late ValueNotifier<List<int>> gloBytesNotifier;
 
-  //late StreamSubscription<List<int>> connectionStateSub;
   late ValueNotifier<bool> connectionStateNotifier = ValueNotifier<bool>(isConnected);
 
 
@@ -41,9 +38,6 @@ class Node{
 
     flexCharacteristic = service.characteristics[0];
 
-    print(service.toString());
-    print(flexCharacteristic.toString());
-
     device.connectionState.listen((state) {
       connectionStateNotifier.value = state == BluetoothConnectionState.connected;
     });
@@ -51,9 +45,11 @@ class Node{
     var lastFlexSub = flexCharacteristic.onValueReceived.listen((valuein) {
       print(valuein);      
       flexBytesNotifier.value = valuein;
+      m0Notifier.value = valuein[1] << 8 | valuein[0];
+      m1Notifier.value = valuein[3] << 8 | valuein[2];
+      bpmNotifier.value = valuein[5] << 8 | valuein[4];
     });
     device.cancelWhenDisconnected(lastFlexSub);
-
     try{
       await flexCharacteristic.setNotifyValue(true); 
     }
@@ -63,25 +59,45 @@ class Node{
       }
     }
 
-    // gloCharacteristic = service.characteristics[1];
-    // final lastGloSub = colorCharacteristic.lastValueStream.listen((value) {
-    //   colorbytes = value;
-    // });
-    // device.cancelWhenDisconnected(_lastColorSubscription);
-    //await colorCharacteristic.setNotifyValue(true);
+    gloCharacteristic = service.characteristics[1];
+    var lastGloSub = gloCharacteristic.lastValueStream.listen((valuein) {
+      gloBytesNotifier.value = valuein;
+    });
+    device.cancelWhenDisconnected(lastGloSub);
+    try{
+      await gloCharacteristic.setNotifyValue(true);
+    }
+    catch(e){
+      if(e is FlutterBluePlusException){
+        print("Stupid ahh bug, don't worry. Pops up when subscribing but shouldn't be a problem");
+      }
+    }
   }
 
   bool get isConnected {
-    return (device.remoteId.toString() == DEFAULT_ID)? device.isConnected : false;
+    return (device.remoteId.toString() == DEFAULT_ID)? false : device.isConnected;
   } 
 
-  // get flex{
-  //   flexCharacteristic.read();
-  //   return flexBytes;
-  // }
+  void writeGloColor(Color currentColor, int muscleSite) async{
+    List<int> gloMsg = List<int>.filled(8, 0);
 
-  // get glo{
-  //   gloCharacteristic.read();
-  //   return gloBytes;
-  // }
+    if(muscleSite == 0){
+      gloMsg[0] = currentColor.red;
+      gloMsg[1] = currentColor.green;
+      gloMsg[2] = currentColor.blue;
+      gloMsg[3] = gloBytesNotifier.value[3];
+      gloMsg[4] = gloBytesNotifier.value[4];
+      gloMsg[5] = gloBytesNotifier.value[5];
+    }
+    else if(muscleSite == 1){
+      gloMsg[1] = gloBytesNotifier.value[1];
+      gloMsg[2] = gloBytesNotifier.value[2];
+      gloMsg[3] = gloBytesNotifier.value[3];
+      gloMsg[3] = currentColor.red;
+      gloMsg[4] = currentColor.green;
+      gloMsg[5] = currentColor.blue;
+    }
+    
+    await gloCharacteristic.write(gloMsg);
+  }
 }

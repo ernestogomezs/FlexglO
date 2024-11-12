@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 class NodeTile extends StatefulWidget {
@@ -6,12 +8,14 @@ class NodeTile extends StatefulWidget {
     required this.serviceUuidNotifier,
     required this.connectionNotifier, 
     required this.flexNotifier,
+    required this.onTap,
   });
 
   final String nodeId;
   final ValueNotifier<String> serviceUuidNotifier;
   final ValueNotifier<bool> connectionNotifier;
   final ValueNotifier<List<int>> flexNotifier;
+  final VoidCallback? onTap;
 
   @override
   State<NodeTile> createState() => _NodeTileState();
@@ -41,6 +45,17 @@ class _NodeTileState extends State<NodeTile> {
           radius: 5,
         );
       } 
+    );
+  }
+
+  Widget _buildDisconnectButton() {
+    return ElevatedButton(
+      child: const Text('DISCONNECT'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+      ),
+      onPressed: widget.connectionNotifier.value ? widget.onTap : null,
     );
   }
 
@@ -80,8 +95,15 @@ class _NodeTileState extends State<NodeTile> {
             child: ValueListenableBuilder<List<int>>(
               valueListenable: widget.flexNotifier,
               builder: (context, flexBytes, child){
+                if(flexBytes.isEmpty){
+                  return Text("No values were read");
+                }
+
+                int m0 = flexBytes[1] << 8 | flexBytes[0];
+                int m1 = flexBytes[3] << 8 | flexBytes[2];
+                int bpm = flexBytes[5] << 8 | flexBytes[4];
                 return Text(
-                    flexBytes.toString(),
+                    "Muscle 0 = $m0\nMuscle 1 = $m1\nBPM = $bpm",
                     style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.black),
                   );
               },
@@ -104,6 +126,10 @@ class _NodeTileState extends State<NodeTile> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              _buildDisconnectButton(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5)
+              ),
               _buildConnectedStatusLight(),
             ]
           ),

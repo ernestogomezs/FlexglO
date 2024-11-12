@@ -84,6 +84,24 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  void onDisconnect(Node d) async{
+    try {
+      await d.device.disconnect();
+      Snackbar.show(ABC.c, "Disconnect: Success", success: true);
+    } catch (e) {
+      if (e is FlutterBluePlusException && e.code == FbpErrorCode.connectionCanceled.index) {
+        // ignore connections canceled by the user
+      } else {
+        Snackbar.show(ABC.c, prettyException("Disconnect Error:", e), success: false);
+      }
+    }
+
+    if(mounted){
+      Provider.of<MyAppState>(context, listen: false).replaceNode(d.id, Node.def(d.id));
+      setState(() {});
+    }
+  }
+
   void onConnectAll() async{
     //ONLY ALLOW USER TO CONNECT IF ALL 5 NODES ARE FOUND IN result
     for (ScanResult result in _scanResults){ 
@@ -96,10 +114,6 @@ class _ScanScreenState extends State<ScanScreen> {
 
   Future onRefresh() {
     if (_isScanning == false) {
-      // Get the remote Ids of the connected nodes
-
-      // Scan the BLE devices in the netword with the allowed remote IDs, 
-      // excluding the ones that are already connected
       FlutterBluePlus.startScan(
         withKeywords: ["Node"], 
         timeout: const Duration(seconds: 15)
@@ -159,6 +173,7 @@ class _ScanScreenState extends State<ScanScreen> {
           serviceUuidNotifier: d.serviceUuidNotifier,
           connectionNotifier: d.connectionStateNotifier,
           flexNotifier: d.flexBytesNotifier,
+          onTap: () => onDisconnect(d)
         ),
       )
     .toList();
@@ -198,7 +213,7 @@ class _ScanScreenState extends State<ScanScreen> {
             ],
           ),
         ),
-        floatingActionButton: buildConnectAllButton(context),
+        //floatingActionButton: buildConnectAllButton(context),
       ),
     );
   }

@@ -101,9 +101,6 @@ class _ScanResultTileState extends State<ScanResultTile> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5)
-          ),
           _buildConnectButton(context)
         ]
       ),

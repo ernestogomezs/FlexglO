@@ -33,7 +33,7 @@ extension Extra on BluetoothDevice {
   Future<void> connectAndUpdateStream() async {
     _cstream.add(true);
     try {
-      await connect(autoConnect: true, mtu: null);
+      await connect(mtu: null);
       await connectionState.where((val) => val == BluetoothConnectionState.connected).first;
       print("CONNECTION ESTABLISHED");
     } finally {

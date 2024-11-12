@@ -163,84 +163,137 @@ class NodesPage extends StatelessWidget {
                 alignment: AlignmentDirectional.center,
                 children:<Widget>[
                   SvgPicture.asset(
-                        'assets/images/men_vector.svg', 
-                        width: 250,
-                        height: 250
+                    'assets/images/men_vector.svg', 
+                    width: 250,
+                    height: 250
+                  ),
+                  // **Number explanations:**
+                  // Center node is node 0
+                  // Muscle sites are numbered up to down, left to right
+                  // Other nodes are 1-4, left to right
+                  // example: left arm node is node 1, right arm is node 4
+                  //
+                  // Muscle sites are numbered up to down and left to right 
+                  // on the guy flexing, heart is the only muscle site with #2
+                  // example: bicep is muscle 0, tricep is muscle 1
+                  Positioned(
+                    right: 5, top: 30, 
+                    child: SensorWindowButton(
+                      muscle: 'Left Bicep', 
+                      muscleSite: 0,
+                      nodeID: '1',
+                      flexNotifier: appState.nodes[1].m0Notifier,
+                      connectionStateNotifier: appState.nodes[1].connectionStateNotifier,
+                      writeColorChange : appState.nodes[1].writeGloColor
+                    )
                   ),
                   Positioned(
                     left: 5, top: 30, 
                     child: SensorWindowButton(
-                      muscle: 'Left Bicep', 
-                      flexNotifier: appState.nodes[1].m0_Notifier
-                    )
-                  ),
-                  Positioned(
-                    right: 5, top: 30, 
-                    child: SensorWindowButton(
                       muscle: 'Right Bicep',
-                      flexNotifier: appState.nodes[4].m0_Notifier
-                    )
-                  ),
-                  Positioned(
-                    left: 0, top: 60, 
-                    child: SensorWindowButton(
-                      muscle: 'Left Tricep',
-                      flexNotifier: appState.nodes[1].m1_Notifier
+                      muscleSite: 0,
+                      nodeID: '4',
+                      flexNotifier: appState.nodes[4].m0Notifier,
+                      connectionStateNotifier: appState.nodes[4].connectionStateNotifier,
+                      writeColorChange: appState.nodes[4].writeGloColor
                     )
                   ),
                   Positioned(
                     right: 0, top: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Right Tricep',
-                      flexNotifier: appState.nodes[4].m1_Notifier
+                      muscle: 'Left Tricep',
+                      nodeID: '1',
+                      muscleSite: 1,
+                      flexNotifier: appState.nodes[1].m1Notifier,
+                      connectionStateNotifier: appState.nodes[4].connectionStateNotifier,
+                      writeColorChange: appState.nodes[1].writeGloColor
                     )
                   ),
                   Positioned(
-                    left: 60, top: 70, 
+                    left: 0, top: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Left Pectoral',
-                      flexNotifier: appState.nodes[0].m0_Notifier
+                      muscle: 'Right Tricep',
+                      nodeID: '4',
+                      muscleSite: 1,
+                      flexNotifier: appState.nodes[4].m1Notifier,
+                      connectionStateNotifier: appState.nodes[4].connectionStateNotifier,
+                      writeColorChange: appState.nodes[4].writeGloColor
                     )
                   ),
                   Positioned(
                     right: 60, top: 70, 
                     child: SensorWindowButton(
-                      muscle: 'Right Pectoral',
-                      flexNotifier: appState.nodes[0].m1_Notifier
+                      muscle: 'Left Pectoral',
+                      nodeID: '0',
+                      muscleSite: 0,
+                      flexNotifier: appState.nodes[0].m0Notifier,
+                      connectionStateNotifier: appState.nodes[0].connectionStateNotifier,
+                      writeColorChange: appState.nodes[0].writeGloColor
                     )
                   ),
                   Positioned(
-                    left: 30, bottom: 60, 
+                    left: 60, top: 70, 
                     child: SensorWindowButton(
-                      muscle: 'Left Deltoid',
-                      flexNotifier: appState.nodes[2].m1_Notifier
+                      muscle: 'Right Pectoral',
+                      nodeID: '0',
+                      muscleSite: 1,
+                      flexNotifier: appState.nodes[0].m1Notifier,
+                      connectionStateNotifier: appState.nodes[0].connectionStateNotifier,
+                      writeColorChange: appState.nodes[0].writeGloColor
                     )
                   ),
                   Positioned(
                     right: 30, bottom: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Right Deltoid',
-                      flexNotifier: appState.nodes[3].m1_Notifier
+                      muscle: 'Left Deltoid',
+                      nodeID: '2',
+                      muscleSite: 1,
+                      flexNotifier: appState.nodes[2].m1Notifier,
+                      connectionStateNotifier: appState.nodes[2].connectionStateNotifier,
+                      writeColorChange: appState.nodes[2].writeGloColor
                     )
                   ),
                   Positioned(
-                    left: 40, top: 40, 
+                    left: 30, bottom: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Left Shoulder',
-                      flexNotifier: appState.nodes[2].m0_Notifier
+                      muscle: 'Right Deltoid',
+                      nodeID: '3',
+                      muscleSite: 1,
+                      flexNotifier: appState.nodes[3].m1Notifier,
+                      connectionStateNotifier: appState.nodes[3].connectionStateNotifier,
+                      writeColorChange: appState.nodes[3].writeGloColor
                     )
                   ),
                   Positioned(
                     right: 40, top: 40, 
                     child: SensorWindowButton(
+                      muscle: 'Left Shoulder',
+                      nodeID: '2',
+                      muscleSite: 0,
+                      flexNotifier: appState.nodes[2].m0Notifier,
+                      connectionStateNotifier: appState.nodes[2].connectionStateNotifier,
+                      writeColorChange: appState.nodes[2].writeGloColor
+                    )
+                  ),
+                  Positioned(
+                    left: 40, top: 40, 
+                    child: SensorWindowButton(
                       muscle: 'Right Shoulder',
-                      flexNotifier: appState.nodes[3].m0_Notifier
+                      nodeID: '3',
+                      muscleSite: 0,
+                      flexNotifier: appState.nodes[3].m0Notifier,
+                      connectionStateNotifier: appState.nodes[3].connectionStateNotifier,
+                      writeColorChange: appState.nodes[3].writeGloColor
                     )
                   ),
                   Positioned(
                     child: SensorWindowButton(
                       muscle: 'Heart',
-                      flexNotifier: appState.nodes[0].heart_Notifier
+                      nodeID: '0',
+                      muscleSite: 2,
+                      flexNotifier: appState.nodes[0].bpmNotifier,
+                      connectionStateNotifier: appState.nodes[0].connectionStateNotifier,
+                      writeColorChange: appState.nodes[0].writeGloColor
                     )
                   )
                 ]
