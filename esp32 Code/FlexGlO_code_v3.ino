@@ -1,3 +1,5 @@
+
+#define FASTLED_RMT_MAX_CHANNELS 3 //Limit to only 3 RMT channels because S3 only has 4 outgoing and the library defaults to 8 causing freezing
 #include <FastLED.h>
 #include <atomic>
 #include <stdint.h>
@@ -22,10 +24,10 @@ enum {EMG0 = 0, EMG1, EKG};           // Enum for easier indexing into data matr
 #define LED_PIN3 14                   // Second WS2812B Bar
 #define LED_PIN4 13                   // WS2812B Circle
 #define LED_ONBOARD 1                 // # of LEDs in the onboard RGB
-#define BAR_LEDS 10                   // # of LEDs in the strips WS2812B 
-#define CIRCLE_LEDS 12                // # of LEDs in the Circle WS2812B
+#define BAR_LEDS 11                   // # of LEDs in the strips WS2812B 
+#define CIRCLE_LEDS 11                // # of LEDs in the Circle WS2812B
 #define NUM_PULSES 4                  // # of alternating start pulses
-#define HEART_THRESH 2700             // Raw ADC value to register a heartbeat
+#define HEART_THRESH 2200             // Raw ADC value to register a heartbeat
 #define MAX_JUICE 64                  // Length of a LED pulse showing the heartbeat (stickiness of the pulse)
 #define HEART_WINDOW 4                // Number of samples used to determine heartrate
 #define LOG2_HEART_WINDOW 2           // Log of the heart window for fast division
@@ -161,7 +163,7 @@ void process_ADC(void *pvParameters) { // Process ADC Data Task
           case ADC_CHANNEL_1:
             ADC_sums[EMG1] += entry.type2.data;
             break;
-          case ADC_CHANNEL_5:  // Channel 3 (GPIO pin 5)
+          case ADC_CHANNEL_4:  // Channel 3 (GPIO pin 5)
             ADC_sums[EKG] += entry.type2.data;
             break;
           default:
@@ -252,11 +254,12 @@ void record_pulse(){
 void set_circle(){ //Sets the LEDs for the heartbeat circle
   const uint8_t redIntensities[MAX_JUICE] = { // Precalculated array for red intensities 64 looks good and is fast enough for 1kHz
     //First Entry is Dummy Never Reached (Gaussian Model ;))
-    0, 255, 254, 253, 252, 250, 247, 244, 237, 232, 227, 222, 216, 210, 204, 197,
-    190, 183, 176, 169, 162, 154, 147, 139, 132, 125, 118, 111, 104, 98, 91, 85,
-    79, 74, 68, 63, 58, 54, 49, 45, 41, 37, 34, 31, 28, 25, 23, 20,
-    18, 16, 14, 13, 11, 10, 9, 8, 7, 6, 5, 4, 4, 3, 2, 0
+    0, 191, 190, 189, 189, 187, 185, 183, 177, 174, 170, 166, 162, 157, 153, 147,
+    142, 137, 132, 126, 121, 115, 110, 104, 99, 93, 88, 83, 78, 73, 68, 63,
+    59, 55, 51, 47, 43, 40, 36, 33, 30, 27, 25, 23, 21, 18, 17, 15,
+    13, 12, 10, 9, 8, 7, 6, 6, 5, 4, 3, 3, 3, 2, 1, 0
   };
+  Serial.print(ADC_means[EKG]);
   if (ADC_means[EKG] > HEART_THRESH) { // Check to see if the heart beat has registered
     if (heart_juice == 0) { // Make sure an ealier beat has not registered
       record_pulse();
@@ -342,10 +345,10 @@ void startup_pulse(int num_pulse) { // Start-up pulse
 }
 
 void init_LEDs(){ //Initialize two LED strips and LED circle, possibly LED onboard for debugging
-  FastLED.addLeds<WS2812B, LED_PIN1, GRB>(LEDs1, LED_ONBOARD);  // Onboard RGB
-  FastLED.addLeds<WS2812B, LED_PIN2, GRB>(LEDs2, BAR_LEDS);     // First strip (10 LEDs)
-  //FastLED.addLeds<WS2812B, LED_PIN3, GRB>(LEDs3, BAR_LEDS);     // Second strip (10 LEDs)
-  FastLED.addLeds<WS2812B, LED_PIN4, GRB>(LEDs4, CIRCLE_LEDS);  // LED circle (12 LEDs)
+  FastLED.addLeds<WS2813, LED_PIN1, GRB>(LEDs1, LED_ONBOARD);  // Onboard RGB
+  FastLED.addLeds<WS2813, LED_PIN2, GRB>(LEDs2, BAR_LEDS);     // First strip (10 LEDs)
+  FastLED.addLeds<WS2813, LED_PIN3, GRB>(LEDs3, BAR_LEDS);     // Second strip (10 LEDs)
+  FastLED.addLeds<WS2813, LED_PIN4, GRB>(LEDs4, CIRCLE_LEDS);  // LED circle (12 LEDs)
   FastLED.setBrightness(75);  // Initial brightness
   heart_juice = 0;
   for(uint8_t i = 0; i < HEART_WINDOW; i++){
@@ -354,7 +357,7 @@ void init_LEDs(){ //Initialize two LED strips and LED circle, possibly LED onboa
   times_index = 0; 
   EKG_mean = 0.0;
   // Create the FreeRTOS task that will handle the LED toggling
-  xTaskCreatePinnedToCore (process_LEDs, "Process LEDs", 2048, NULL, priority::low, &LED_task_handle, 1);
+  xTaskCreatePinnedToCore (process_LEDs, "Process LEDs", 4048, NULL, priority::high, &LED_task_handle, 1);
 }
 
 void init_ADC(){ //Initializes the ADC for correct operation
@@ -390,7 +393,7 @@ void init_ADC(){ //Initializes the ADC for correct operation
       .bit_width = ADC_WIDTH_BIT_12,
     },{
       .atten = ADC_ATTEN_DB_11,
-      .channel = ADC_CHANNEL_5,
+      .channel = ADC_CHANNEL_4,
       .unit = ADC_UNIT_1,
       .bit_width = ADC_WIDTH_BIT_12,
     }
@@ -409,7 +412,7 @@ void init_ADC(){ //Initializes the ADC for correct operation
   }
 
   // Create task to process ADC data once DMA fills buffer
-  xTaskCreatePinnedToCore (process_ADC, "Process ADC", 2048, NULL, priority::low, &process_ADC_handle, 1);
+  xTaskCreatePinnedToCore (process_ADC, "Process ADC", 4048, NULL, priority::low, &process_ADC_handle, 1);
 
   adc_continuous_evt_cbs_t cbs = { // Register the callback ISR to fire when DMA fills buffer
     .on_conv_done = adc_callback,  // Callback for when a conversion frame is complete
@@ -432,10 +435,10 @@ void process_wait(void *pvParameters) {
         if(i == bar_pos){
           LEDs2[i].setRGB(192, 192, 192);
           LEDs3[i].setRGB(192, 192, 192);
-        }else if((bar_pos - 1 > -1) && (i == (bar_pos - 1))){
+        }else if((bar_pos > -1) && (i == (bar_pos - 1))){
           LEDs2[i].setRGB(32, 32, 32);
           LEDs3[i].setRGB(32, 32, 32);
-        }else if((bar_pos + 1 < BAR_LEDS) && (i == (bar_pos + 1))) {
+        }else if((bar_pos  < BAR_LEDS) && (i == (bar_pos + 1))) {
           LEDs2[i].setRGB(32, 32, 32);
           LEDs3[i].setRGB(32, 32, 32);
         }else{
@@ -445,7 +448,7 @@ void process_wait(void *pvParameters) {
       }
       if(bar_pos == 0){
         direction = 1;
-      }else if (bar_pos == 9){
+      }else if (bar_pos == 10){
         direction = -1;
       }
       bar_pos+=direction;
@@ -464,7 +467,7 @@ void process_wait(void *pvParameters) {
       FastLED.show();
       delay(ANIMA_TIME);
     }
-
+    
     const uint8_t fader[FADE_TIME] = {191,187,176,159,138,115,92,71,53,37,25,16,10,6,3,0};
     for(uint8_t j = 0; j < FADE_TIME; j++){
       for(uint8_t k = 0; k < CIRCLE_LEDS; k++){
@@ -481,12 +484,13 @@ void process_wait(void *pvParameters) {
       FastLED.show();
       delay(FADE_TIME);
     }
+    
   }
 }
 
 void init_wait(){
   //Wait task will be used by the BLE task until connection is made
-  xTaskCreatePinnedToCore (process_wait, "Process Wait", 2048, NULL, priority::high, &process_wait_handle, 1);
+  xTaskCreatePinnedToCore (process_wait, "Process Wait", 2048, NULL, priority::low, &process_wait_handle, 1);
   wait_flag.store(false);
   bar_pos = 0;
   cir_pos = 0;
@@ -577,7 +581,7 @@ void init_BLE(){
   gloCharacteristic->setCallbacks(new MyCallbacks());
   gloCharacteristic->setValue((uint8_t*)BLE_in_packet, 6);
   pService->start();
-  xTaskCreatePinnedToCore(process_BLE, "Process BLE", 4048, NULL, priority::low, &process_BLE_handle, 0);
+  xTaskCreatePinnedToCore(process_BLE, "Process BLE", 8192, NULL, priority::low, &process_BLE_handle, 0);
 }
 
 void setup() {
