@@ -7,17 +7,16 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import 'screens/bluetooth_off_screen.dart';
 import 'screens/scan_screen.dart';
-import '../widgets/sensor_window.dart';
-import '../utils/node.dart';
-import '../utils/snackbar.dart';
+import 'widgets/sensor_window.dart';
+import 'widgets/heart_window.dart';
+import 'widgets/log_stopwatch.dart';
+import 'widgets/charts.dart';
+import 'models/chartsdata.dart';
+import 'models/nodesdata.dart';
+import 'utils/snackbar.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: const MyApp()
-    )
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -25,8 +24,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => NodesData()
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ChartsData()
+        ),
+        ChangeNotifierProvider(
+          create: (context) => MyAppState()
+        ),
+      ],
       child: MaterialApp(
         title: 'FlexGlow App',
         theme: ThemeData(
@@ -40,7 +49,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  List<Node> nodes = [Node.def(0), Node.def(1), Node.def(2), Node.def(3), Node.def(4)];
   BluetoothAdapterState adapterState = BluetoothAdapterState.unknown;
   late StreamSubscription<BluetoothAdapterState> adapterStateStateSubscription;
 
@@ -56,11 +64,6 @@ class MyAppState extends ChangeNotifier {
   void dispose(){
     adapterStateStateSubscription.cancel();
     super.dispose();
-  }
-
-  void replaceNode(index, newNode){
-    nodes[index] = newNode;
-    notifyListeners();
   }
 }
 
@@ -147,8 +150,6 @@ class _MyHomePageState extends State<MyHomePage> {
 class NodesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
     return ScaffoldMessenger(
       key: Snackbar.snackBarKeyA,
       child: Scaffold(
@@ -179,121 +180,86 @@ class NodesPage extends StatelessWidget {
                   Positioned(
                     right: 5, top: 30, 
                     child: SensorWindowButton(
-                      muscle: 'Left Bicep', 
+                      muscle: 'Left Bicep Brachii', 
                       muscleSite: 0,
-                      nodeID: '1',
-                      flexNotifier: appState.nodes[1].m0Notifier,
-                      connectionStateNotifier: appState.nodes[1].connectionStateNotifier,
-                      writeColorChange : appState.nodes[1].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[1]
                     )
                   ),
                   Positioned(
                     left: 5, top: 30, 
                     child: SensorWindowButton(
-                      muscle: 'Right Bicep',
+                      muscle: 'Right Bicep Brachii',
                       muscleSite: 0,
-                      nodeID: '4',
-                      flexNotifier: appState.nodes[4].m0Notifier,
-                      connectionStateNotifier: appState.nodes[4].connectionStateNotifier,
-                      writeColorChange: appState.nodes[4].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[4]
                     )
                   ),
                   Positioned(
                     right: 0, top: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Left Tricep',
-                      nodeID: '1',
+                      muscle: 'Left Tricep Brachii',
                       muscleSite: 1,
-                      flexNotifier: appState.nodes[1].m1Notifier,
-                      connectionStateNotifier: appState.nodes[4].connectionStateNotifier,
-                      writeColorChange: appState.nodes[1].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[1]
                     )
                   ),
                   Positioned(
                     left: 0, top: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Right Tricep',
-                      nodeID: '4',
+                      muscle: 'Right Tricep Brachii',
                       muscleSite: 1,
-                      flexNotifier: appState.nodes[4].m1Notifier,
-                      connectionStateNotifier: appState.nodes[4].connectionStateNotifier,
-                      writeColorChange: appState.nodes[4].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[4]
                     )
                   ),
                   Positioned(
                     right: 60, top: 70, 
                     child: SensorWindowButton(
-                      muscle: 'Left Pectoral',
-                      nodeID: '0',
+                      muscle: 'Left Pectoralis Major',
                       muscleSite: 0,
-                      flexNotifier: appState.nodes[0].m0Notifier,
-                      connectionStateNotifier: appState.nodes[0].connectionStateNotifier,
-                      writeColorChange: appState.nodes[0].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[0]
                     )
                   ),
                   Positioned(
                     left: 60, top: 70, 
                     child: SensorWindowButton(
-                      muscle: 'Right Pectoral',
-                      nodeID: '0',
+                      muscle: 'Right Pectoralis Major',
                       muscleSite: 1,
-                      flexNotifier: appState.nodes[0].m1Notifier,
-                      connectionStateNotifier: appState.nodes[0].connectionStateNotifier,
-                      writeColorChange: appState.nodes[0].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[0]
                     )
                   ),
                   Positioned(
                     right: 30, bottom: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Left Deltoid',
-                      nodeID: '2',
+                      muscle: 'Left Latissimus Dorsi',
                       muscleSite: 1,
-                      flexNotifier: appState.nodes[2].m1Notifier,
-                      connectionStateNotifier: appState.nodes[2].connectionStateNotifier,
-                      writeColorChange: appState.nodes[2].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[2]
                     )
                   ),
                   Positioned(
                     left: 30, bottom: 60, 
                     child: SensorWindowButton(
-                      muscle: 'Right Deltoid',
-                      nodeID: '3',
+                      muscle: 'Right Latissimus Dorsi',
                       muscleSite: 1,
-                      flexNotifier: appState.nodes[3].m1Notifier,
-                      connectionStateNotifier: appState.nodes[3].connectionStateNotifier,
-                      writeColorChange: appState.nodes[3].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[3]
                     )
                   ),
                   Positioned(
                     right: 40, top: 40, 
                     child: SensorWindowButton(
-                      muscle: 'Left Shoulder',
-                      nodeID: '2',
+                      muscle: 'Left Deltoid (Shoulder)',
                       muscleSite: 0,
-                      flexNotifier: appState.nodes[2].m0Notifier,
-                      connectionStateNotifier: appState.nodes[2].connectionStateNotifier,
-                      writeColorChange: appState.nodes[2].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[2]
                     )
                   ),
                   Positioned(
                     left: 40, top: 40, 
                     child: SensorWindowButton(
-                      muscle: 'Right Shoulder',
-                      nodeID: '3',
+                      muscle: 'Right Deltoid (Shoulder)',
                       muscleSite: 0,
-                      flexNotifier: appState.nodes[3].m0Notifier,
-                      connectionStateNotifier: appState.nodes[3].connectionStateNotifier,
-                      writeColorChange: appState.nodes[3].writeGloColor
+                      node: Provider.of<NodesData>(context, listen: false).nodes[3]
                     )
                   ),
                   Positioned(
-                    child: SensorWindowButton(
-                      muscle: 'Heart',
-                      nodeID: '0',
-                      muscleSite: 2,
-                      flexNotifier: appState.nodes[0].bpmNotifier,
-                      connectionStateNotifier: appState.nodes[0].connectionStateNotifier,
-                      writeColorChange: appState.nodes[0].writeGloColor
+                    child: HeartWindowButton(
+                      Provider.of<NodesData>(context, listen: false).nodes[0]
                     )
                   )
                 ]
@@ -326,11 +292,84 @@ class _BluetoothPageState extends State<BluetoothPage> {
   }
 }
 
-class LogPage extends StatelessWidget{
+class LogPage extends StatefulWidget{
+  const LogPage({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context){
-    var appState = context.watch<MyAppState>();
-    return Center();
+  State<LogPage> createState() => _LogPageState();
+}
+
+class _LogPageState extends State<LogPage> {
+  final Stopwatch _stopwatch = Stopwatch();
+  late ValueNotifier<Duration> _elapsedTime;
+  late Timer _timer;
+
+  @override
+  initState(){
+    super.initState();
+
+    _elapsedTime.value = Duration.zero;
+
+    // Create a timer that runs a callback every 100 milliseconds to update UI
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (Timer timer) {
+      setState(() {
+        // Update elapsed time only if the stopwatch is running
+        if (_stopwatch.isRunning) {
+          _updateElapsedTime();
+        }
+      });
+    });
   }
 
+  // Start/Stop button callback
+  void _startStopwatch() {
+    if (!_stopwatch.isRunning) {
+      // Start the stopwatch and update elapsed time
+      _stopwatch.start();
+      _updateElapsedTime();
+    } else {
+      // Stop the stopwatch
+      _stopwatch.stop();
+    }
+  }
+  
+  // Reset button callback
+  void _resetStopwatch() {
+    // Reset the stopwatch to zero and update elapsed time
+    _stopwatch.reset();
+    _updateElapsedTime();
+  }
+
+  // Update elapsed time and formatted time string
+  void _updateElapsedTime() {
+    setState(() {
+      _elapsedTime.value = _stopwatch.elapsed;
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return ScaffoldMessenger(
+      key: Snackbar.snackBarKeyB,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Log Data'),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Charts(_elapsedTime),
+            const SizedBox(height: 20.0),
+            LogStopwatch(_startStopwatch, _resetStopwatch, _elapsedTime),
+          ],
+        ),
+      ),
+    );
+  }
 }

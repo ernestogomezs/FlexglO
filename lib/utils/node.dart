@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -19,7 +17,7 @@ class Node{
   late ValueNotifier<int> bpmNotifier = ValueNotifier<int>(0);
   
   late BluetoothCharacteristic gloCharacteristic;
-  late ValueNotifier<List<int>> gloBytesNotifier;
+  late ValueNotifier<List<int>> gloBytesNotifier = ValueNotifier<List<int>>([]);
 
   late ValueNotifier<bool> connectionStateNotifier = ValueNotifier<bool>(isConnected);
 
@@ -90,14 +88,18 @@ class Node{
       gloMsg[5] = gloBytesNotifier.value[5];
     }
     else if(muscleSite == 1){
+      gloMsg[0] = gloBytesNotifier.value[0];
       gloMsg[1] = gloBytesNotifier.value[1];
       gloMsg[2] = gloBytesNotifier.value[2];
-      gloMsg[3] = gloBytesNotifier.value[3];
       gloMsg[3] = currentColor.red;
       gloMsg[4] = currentColor.green;
       gloMsg[5] = currentColor.blue;
     }
     
     await gloCharacteristic.write(gloMsg);
+  }
+
+  void readGlo() async{
+    await gloCharacteristic.read();
   }
 }
