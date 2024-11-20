@@ -10,7 +10,7 @@ import 'screens/scan_screen.dart';
 import 'widgets/sensor_window.dart';
 import 'widgets/heart_window.dart';
 import 'widgets/log_stopwatch.dart';
-import 'widgets/charts.dart';
+import 'widgets/charts_table.dart';
 import 'models/chartsdata.dart';
 import 'models/nodesdata.dart';
 import 'utils/snackbar.dart';
@@ -145,7 +145,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 
 class NodesPage extends StatelessWidget {
   @override
@@ -303,6 +302,7 @@ class _LogPageState extends State<LogPage> {
   final Stopwatch _stopwatch = Stopwatch();
   late ValueNotifier<Duration> _elapsedTime;
   late Timer _timer;
+  late ValueNotifier<bool> _stopwatchRunning = ValueNotifier<bool>(false);
 
   @override
   initState(){
@@ -331,6 +331,7 @@ class _LogPageState extends State<LogPage> {
       // Stop the stopwatch
       _stopwatch.stop();
     }
+    _stopwatchRunning.value = _stopwatch.isRunning;
   }
   
   // Reset button callback
@@ -338,6 +339,7 @@ class _LogPageState extends State<LogPage> {
     // Reset the stopwatch to zero and update elapsed time
     _stopwatch.reset();
     _updateElapsedTime();
+    _stopwatchRunning.value = _stopwatch.isRunning;
   }
 
   // Update elapsed time and formatted time string
@@ -364,9 +366,9 @@ class _LogPageState extends State<LogPage> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Charts(_elapsedTime),
+            ChartsTable(_elapsedTime),
             const SizedBox(height: 20.0),
-            LogStopwatch(_startStopwatch, _resetStopwatch, _elapsedTime),
+            LogStopwatch(_startStopwatch, _resetStopwatch, _elapsedTime, _stopwatchRunning),
           ],
         ),
       ),

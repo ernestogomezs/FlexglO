@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:oscilloscope/oscilloscope.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 
 import '../utils/node.dart';
@@ -98,18 +97,6 @@ class _HeartWindowState extends State<HeartWindow> {
 
   @override
   Widget build(BuildContext context){
-    Oscilloscope scopeOne = Oscilloscope(
-      showYAxis: true,
-      yAxisColor: Colors.grey,
-      margin: EdgeInsets.all(20.0),
-      strokeWidth: 3.0,
-      backgroundColor: Colors.white,
-      traceColor: currentColor,
-      yAxisMax: 2050,
-      yAxisMin: 0,
-      dataSet: trace,
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Heart Rate"),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:oscilloscope/oscilloscope.dart';
 
-import '/models/nodesdata.dart';
 import '/models/chartsdata.dart';
+import '/models/nodesdata.dart';
 
 class ChartWidget extends StatefulWidget{
   ChartWidget(this.chart, {Key? key}) : super(key: key);
@@ -15,12 +15,11 @@ class ChartWidget extends StatefulWidget{
 }
 
 class _ChartState extends State<ChartWidget>{
-  ValueNotifier<int> muscleValue = ValueNotifier<int>(0);
   late Oscilloscope scope;
 
   @override
   void initState() {
-    muscleValue = Provider.of<NodesData>(context, listen: false).notifierFromMuscle(widget.chart.muscle);
+    widget.chart.muscleValue = Provider.of<NodesData>(context, listen: false).notifierFromMuscle(widget.chart.muscle);
 
     scope = Oscilloscope(
       showYAxis: true,
@@ -48,9 +47,5 @@ class _ChartState extends State<ChartWidget>{
       flex: 1,
       child: scope
     );
-  }
-
-  void addValue(){
-    widget.chart.data.add(muscleValue.value);
   }
 }

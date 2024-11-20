@@ -1,24 +1,35 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '/models/chartsdata.dart';
 import '/utils/constants.dart';
+import '/widgets/chart_widget.dart';
 
-class Charts extends StatefulWidget{
-  Charts(this.elapsedTime, {Key? key}) : super(key: key);
+class ChartsTable extends StatefulWidget{
+  ChartsTable(this.elapsedTime, {Key? key}) : super(key: key);
 
   final ValueNotifier<Duration> elapsedTime;
 
   @override
-  State<Charts> createState() => _ChartsState();
+  State<ChartsTable> createState() => _ChartsTableState();
 }
 
-class _ChartsState extends State<Charts>{
+class _ChartsTableState extends State<ChartsTable>{
   List<String> availableMuscles = MUSCLESITES;
+  List<double> timeList = [];
+  List<ChartWidget> chartsWidgets = [];
+
+  void _addNewChart(Chart chart){
+    chartsWidgets.add(ChartWidget(chart));
+  }
 
   @override
   void initState() {
+    widget.elapsedTime.addListener((){
+        timeList.add(widget.elapsedTime.value.inMilliseconds/1000);
+        Provider.of<ChartsData>(context, listen: false).updateCharts();
+      }
+    );
     super.initState();
   }
 
@@ -27,13 +38,13 @@ class _ChartsState extends State<Charts>{
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        TopBar(),
+        TopBar(_addNewChart),
         SizedBox(
           height: 500,
           child: Consumer<ChartsData>(
             builder: (context, chartsData, child) {
               return Column(
-                children: chartsData.charts
+                children: chartsWidgets
               );
             }
           ),
@@ -44,7 +55,9 @@ class _ChartsState extends State<Charts>{
 }
 
 class TopBar extends StatefulWidget{
-  TopBar({Key? key}) : super(key: key);
+  TopBar(this.onSelected, {Key? key}) : super(key: key);
+
+  final void Function(Chart) onSelected;
 
   @override
   State<TopBar> createState() => _TopBarState();
@@ -60,7 +73,8 @@ class _TopBarState extends State<TopBar>{
 
   void addPlot(String selectedMuscle) {
     if (availableMuscles.contains(selectedMuscle)) {
-      Provider.of<ChartsData>(context, listen: false).addChart(selectedMuscle);
+      var chart = Provider.of<ChartsData>(context, listen: false).addChart(selectedMuscle);
+      widget.onSelected(chart);
     }
     availableMuscles.remove(selectedMuscle);
   }

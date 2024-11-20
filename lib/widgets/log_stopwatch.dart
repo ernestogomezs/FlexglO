@@ -1,28 +1,30 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 class LogStopwatch extends StatefulWidget{
   LogStopwatch(this.startStopwatch, 
                this.resetStopwatch,
                this.elapsedTimeListener,
+               this.stopwatchRunning,
                {Key? key}) : super(key: key);
 
   final VoidCallback? startStopwatch;
   final VoidCallback? resetStopwatch;
   final ValueNotifier<Duration> elapsedTimeListener;
+  final ValueNotifier<bool> stopwatchRunning;
 
   @override
   State<LogStopwatch> createState() => _LogStopwatchState();
 }
 
 class _LogStopwatchState extends State<LogStopwatch>{
-  final Stopwatch _stopwatch = Stopwatch();
-  late Timer timer;
-
   // Format a Duration into a string (MM:SS.SS)
   String _formatElapsedTime(Duration time) {
     return '${time.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(time.inSeconds.remainder(60)).toString().padLeft(2, '0')}.${(time.inMilliseconds % 1000 ~/ 100).toString()}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -53,7 +55,7 @@ class _LogStopwatchState extends State<LogStopwatch>{
               const SizedBox(width: 20.0),
               ElevatedButton(
                 onPressed: widget.startStopwatch,
-                child: Text(_stopwatch.isRunning ? 'Stop Session' : 'Start Session'),
+                child: Text(widget.stopwatchRunning.value? 'Stop Session' : 'Start Session'),
               ),
             ],
           ),
