@@ -31,7 +31,7 @@ enum {EMG0 = 0, EMG1, EKG};                             // Enum for easier index
 #endif
 #define BAR_LEDS 10                                     // # of LEDs in the strips WS2812B 
 #define CIRCLE_LEDS 12                                  // # of LEDs in the Circle WS2812B
-#define NUM_PULSES 2                                    // # of alternating start pulses
+#define NUM_PULSES 4                                    // # of alternating start pulses
 #define HEART_THRESH 1024                               // Raw ADC value to register a heartbeat
 #define MAX_JUICE 64                                    // Length of a LED pulse showing the heartbeat (stickiness of the pulse)
 #define HEART_WINDOW 4                                  // Number of samples used to determine heartrate
@@ -73,7 +73,7 @@ adc_continuous_handle_t continuous_ADC_handle;          // Aquiring ADC via DMA 
 TaskHandle_t process_ADC_handle;                        // Processing ADC task handle
 
 //BLE defines and globals
-#define NODE 0
+#define NODE 1
 #if NODE == 0                                           // Different UUIDs for each of the 5 nodes
   #define NAME                      "Node 0"
   #define UUID                      "cf74a8d6-287d-4428-8165-fd9d3ab126c1"
