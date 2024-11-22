@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:oscilloscope/oscilloscope.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
+import '../utils/node.dart';
 
 List<Color> COLORLIST = [
   Color.fromRGBO(0xFF, 0, 0, 1.0),
@@ -19,18 +20,12 @@ class SensorWindowButton extends StatelessWidget{
   SensorWindowButton({Key? key, 
     required this.muscle,
     required this.muscleSite,
-    required this.nodeID,
-    required this.flexNotifier, 
-    required this.connectionStateNotifier,
-    required this.writeColorChange
+    required this.node
   });
 
   final String muscle;
   final int muscleSite;
-  final String nodeID;
-  final ValueNotifier<int> flexNotifier;
-  final ValueNotifier<bool> connectionStateNotifier;
-  final Function writeColorChange;
+  final Node node;
 
   @override
   Widget build(BuildContext context){
@@ -38,28 +33,32 @@ class SensorWindowButton extends StatelessWidget{
       padding: const EdgeInsets.all(32.0),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context){
-                if(!connectionStateNotifier.value){
-                  return AlertDialog(
-                    title: Text('Node $nodeID for $muscle is not connected'),
-                    content: Text('Make sure node $nodeID is connected in the Bluetooth menu'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => {
-                          Navigator.pop(context, 'OK')
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                }
-                else{
-                  return SensorWindow(muscle, muscleSite, flexNotifier, writeColorChange);
-                }
+          if(!node.connectionStateNotifier.value){
+            showDialog(
+              context: context,
+              builder: (BuildContext context){
+                return AlertDialog(
+                  title: Text('Node ${node.id} for $muscle is not connected'),
+                  content: Text('Make sure node ${node.id} is connected in the Bluetooth menu'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => {
+                        Navigator.pop(context, 'OK')
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
               }
-            )
-          );
+            );
+          }
+          else{
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context){
+                return SensorWindow(muscle, muscleSite, node);
+              }
+            ));
+          }
         },
         child: Hero(
           tag: muscle,
@@ -72,7 +71,7 @@ class SensorWindowButton extends StatelessWidget{
             child: const Icon(
               Icons.circle,
               size: 26,
-              color: Colors.white
+              color: Colors.white //Change to listener builder with glo bytes corresponding to muscleSite 
             ),
           )
         ),
@@ -82,18 +81,19 @@ class SensorWindowButton extends StatelessWidget{
 }
 
 class SensorWindow extends StatefulWidget {
-  SensorWindow(this.muscle, this.muscleSite, this.muscleIntensityNotify, this.writeColorChange);
+  SensorWindow(this.muscle, 
+               this.muscleSite, 
+               this.node);
 
   final String muscle;
   final int muscleSite;
-  late ValueNotifier<int> muscleIntensityNotify;
-  final Function writeColorChange;
+  final Node node;
 
   @override
-  SensorWindowState createState() => SensorWindowState();
+  State<SensorWindow> createState() => _SensorWindowState();
 }
 
-class SensorWindowState extends State<SensorWindow> {
+class _SensorWindowState extends State<SensorWindow> {
   List<int> trace = [];
   double radians = 0.0;
   Timer? _timer;
@@ -102,7 +102,9 @@ class SensorWindowState extends State<SensorWindow> {
   /// method to generate wave pattern
   _generateTrace(Timer t) {
     // Read latest value
-    int muscleIntensityValue = widget.muscleIntensityNotify.value;
+    int muscleIntensityValue = (widget.muscleSite == 0)? 
+      widget.node.m0Notifier.value : 
+      widget.node.m1Notifier.value;
 
     // Add latest read value to the growing dataset
     setState(() {
@@ -111,7 +113,7 @@ class SensorWindowState extends State<SensorWindow> {
   }
 
   void changeColor(Color color) {
-    widget.writeColorChange(color, widget.muscleSite);
+    widget.node.writeGloColor(color, widget.muscleSite);
     setState(() => currentColor = color);
   }
 
@@ -120,6 +122,13 @@ class SensorWindowState extends State<SensorWindow> {
     super.initState();
     // create our timer to generate test values
     _timer = Timer.periodic(Duration(milliseconds: 64), _generateTrace);
+    // widget.node.readGlo();
+    // currentColor = Color.fromRGBO(widget.node.gloBytesNotifier.value[0 + widget.muscleSite * 3], 
+    //                               widget.node.gloBytesNotifier.value[1 + widget.muscleSite * 3], 
+    //                               widget.node.gloBytesNotifier.value[2 + widget.muscleSite * 3], 
+    //                               1.0);
+
+    currentColor = Color.fromRGBO(0, 0xff, 0, 1.0);
   }
 
   @override

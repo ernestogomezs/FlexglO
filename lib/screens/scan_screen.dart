@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flexglow_app/main.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/node.dart';
 import '../utils/snackbar.dart';
+import '../utils/extra.dart';
 import '../widgets/scan_result_tile.dart';
 import '../widgets/node_tile.dart';
-import '../utils/extra.dart';
+import '../models/nodesdata.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({Key? key}) : super(key: key);
@@ -79,7 +79,7 @@ class _ScanScreenState extends State<ScanScreen> {
     if(mounted){
       var newNode =  Node(result.device);
       newNode.init();
-      Provider.of<MyAppState>(context, listen: false).replaceNode(newNode.id, newNode);
+      Provider.of<NodesData>(context, listen: false).replaceNode(newNode.id, newNode);
       setState(() {});
     }
   }
@@ -97,7 +97,7 @@ class _ScanScreenState extends State<ScanScreen> {
     }
 
     if(mounted){
-      Provider.of<MyAppState>(context, listen: false).replaceNode(d.id, Node.def(d.id));
+      Provider.of<NodesData>(context, listen: false).replaceNode(d.id, Node.def(d.id));
       setState(() {});
     }
   }
@@ -166,7 +166,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   List<Widget> _buildNodeTiles(BuildContext context) {
-    return Provider.of<MyAppState>(context, listen: false).nodes
+    return Provider.of<NodesData>(context, listen: false).nodes
       .map(
         (d) => NodeTile(
           nodeId: "${d.id}",
@@ -192,7 +192,6 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return ScaffoldMessenger(
       key: Snackbar.snackBarKeyB,
       child: Scaffold(
