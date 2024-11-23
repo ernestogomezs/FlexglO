@@ -28,9 +28,10 @@ class _ChartState extends State<ChartWidget>{
       strokeWidth: 2.0,
       backgroundColor: Colors.white,
       traceColor: Colors.black,
-      yAxisMax: 1.0,
-      yAxisMin: -1.0,
+      yAxisMax: 2050,
+      yAxisMin: 0,
       dataSet: widget.chart.data,
+
     );
 
     super.initState();
@@ -45,7 +46,29 @@ class _ChartState extends State<ChartWidget>{
   Widget build(BuildContext context){
     return Expanded(
       flex: 1,
-      child: scope
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(width: 4.0, color: Colors.grey),
+          borderRadius: BorderRadius.circular(4)
+        ),
+        margin: const EdgeInsets.all(5),
+        child: Column(
+          children: [
+            // Row(
+            //   children: [
+            //     Text(widget.chart.muscle),
+            //     ElevatedButton(
+            //       onPressed: (){
+                    
+            //       }, 
+            //       child: Icon(Icons.delete)
+            //     )
+            //   ],
+            // ),
+            scope
+          ]
+        )
+      )
     );
   }
 }

@@ -96,7 +96,6 @@ class _NodeTileState extends State<NodeTile> {
                 if(flexBytes.isEmpty){
                   return Text("No values were read");
                 }
-
                 int m0 = flexBytes[1] << 8 | flexBytes[0];
                 int m1 = flexBytes[3] << 8 | flexBytes[2];
                 int bpm = flexBytes[5] << 8 | flexBytes[4];

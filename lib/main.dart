@@ -2,18 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
-import 'screens/bluetooth_off_screen.dart';
-import 'screens/scan_screen.dart';
-import 'widgets/sensor_window.dart';
-import 'widgets/heart_window.dart';
-import 'widgets/log_stopwatch.dart';
-import 'widgets/charts_table.dart';
 import 'models/chartsdata.dart';
 import 'models/nodesdata.dart';
 import 'utils/snackbar.dart';
+
+import 'screens/bluetooth_off_screen.dart';
+import 'screens/scan_screen.dart';
+
+import 'widgets/log_stopwatch.dart';
+import 'widgets/charts_table.dart';
+import 'widgets/window_mannequin.dart';
+import 'widgets/connection_status.dart';
 
 void main() {
   runApp(MyApp());
@@ -54,7 +56,7 @@ class MyAppState extends ChangeNotifier {
 
   void initState(){
     adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
-      print(state.toString());
+      //print(state.toString());
       adapterState = state;
       notifyListeners();
     });
@@ -155,117 +157,16 @@ class NodesPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Central - Examine Nodes'),
         ),
-        body: Center(
-          child: Column(
+        body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Stack(
-                alignment: AlignmentDirectional.center,
-                children:<Widget>[
-                  SvgPicture.asset(
-                    'assets/images/men_vector.svg', 
-                    width: 250,
-                    height: 250
-                  ),
-                  // **Number explanations:**
-                  // Center node is node 0
-                  // Muscle sites are numbered up to down, left to right
-                  // Other nodes are 1-4, left to right
-                  // example: left arm node is node 1, right arm is node 4
-                  //
-                  // Muscle sites are numbered up to down and left to right 
-                  // on the guy flexing, heart is the only muscle site with #2
-                  // example: bicep is muscle 0, tricep is muscle 1
-                  Positioned(
-                    right: 5, top: 30, 
-                    child: SensorWindowButton(
-                      muscle: 'Left Bicep Brachii', 
-                      muscleSite: 0,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[1]
-                    )
-                  ),
-                  Positioned(
-                    left: 5, top: 30, 
-                    child: SensorWindowButton(
-                      muscle: 'Right Bicep Brachii',
-                      muscleSite: 0,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[4]
-                    )
-                  ),
-                  Positioned(
-                    right: 0, top: 60, 
-                    child: SensorWindowButton(
-                      muscle: 'Left Tricep Brachii',
-                      muscleSite: 1,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[1]
-                    )
-                  ),
-                  Positioned(
-                    left: 0, top: 60, 
-                    child: SensorWindowButton(
-                      muscle: 'Right Tricep Brachii',
-                      muscleSite: 1,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[4]
-                    )
-                  ),
-                  Positioned(
-                    right: 60, top: 70, 
-                    child: SensorWindowButton(
-                      muscle: 'Left Pectoralis Major',
-                      muscleSite: 0,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[0]
-                    )
-                  ),
-                  Positioned(
-                    left: 60, top: 70, 
-                    child: SensorWindowButton(
-                      muscle: 'Right Pectoralis Major',
-                      muscleSite: 1,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[0]
-                    )
-                  ),
-                  Positioned(
-                    right: 30, bottom: 60, 
-                    child: SensorWindowButton(
-                      muscle: 'Left Latissimus Dorsi',
-                      muscleSite: 1,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[2]
-                    )
-                  ),
-                  Positioned(
-                    left: 30, bottom: 60, 
-                    child: SensorWindowButton(
-                      muscle: 'Right Latissimus Dorsi',
-                      muscleSite: 1,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[3]
-                    )
-                  ),
-                  Positioned(
-                    right: 40, top: 40, 
-                    child: SensorWindowButton(
-                      muscle: 'Left Deltoid (Shoulder)',
-                      muscleSite: 0,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[2]
-                    )
-                  ),
-                  Positioned(
-                    left: 40, top: 40, 
-                    child: SensorWindowButton(
-                      muscle: 'Right Deltoid (Shoulder)',
-                      muscleSite: 0,
-                      node: Provider.of<NodesData>(context, listen: false).nodes[3]
-                    )
-                  ),
-                  Positioned(
-                    child: HeartWindowButton(
-                      Provider.of<NodesData>(context, listen: false).nodes[0]
-                    )
-                  )
-                ]
-              ),
+              ConnectionConsole(),
+              const SizedBox(height: 20),
+              WindowMannequin(),
+              const SizedBox(height: 20),
+              //WorkoutCounter()
             ]
-          )
-        ),
+          ),
       )
     );
   }
@@ -300,7 +201,7 @@ class LogPage extends StatefulWidget{
 
 class _LogPageState extends State<LogPage> {
   final Stopwatch _stopwatch = Stopwatch();
-  late ValueNotifier<Duration> _elapsedTime;
+  late ValueNotifier<Duration> _elapsedTime = ValueNotifier<Duration>(Duration.zero);
   late Timer _timer;
   late ValueNotifier<bool> _stopwatchRunning = ValueNotifier<bool>(false);
 

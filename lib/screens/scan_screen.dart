@@ -27,14 +27,6 @@ class _ScanScreenState extends State<ScanScreen> {
 
   int amtNodes = 1;
 
-  //Remote IDs
-  final List<String> SCANFORDEVICES = [
-    //"D0E9572B-E96D-AB52-92E8-3B056AD4ED67", //Ernesto's MacBook
-    "BB5CD5C3-60B2-9242-E6DD-FFF87A82F877", //Debug Node 0 (Central Module)
-    "1B3BA213-CCAE-5CA6-3BCD-76BD84855F9B", //Debug Node 1
-    "EECB4389-2FEE-60DE-9F65-A1088A5E32AF", //Debug Node 2
-  ];
-
   @override
   void initState() {
     super.initState();

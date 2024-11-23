@@ -7,7 +7,7 @@ class Node{
   late int id;
   late BluetoothDevice device;
   late BluetoothService service;
-  late ValueNotifier<String> serviceUuidNotifier = ValueNotifier<String> ("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"); 
+  late ValueNotifier<String> serviceUuidNotifier = ValueNotifier<String>("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"); 
 
   late BluetoothCharacteristic flexCharacteristic;
   late ValueNotifier<List<int>> flexBytesNotifier = ValueNotifier<List<int>>([]);
@@ -41,7 +41,7 @@ class Node{
     });
 
     var lastFlexSub = flexCharacteristic.onValueReceived.listen((valuein) {
-      print(valuein);      
+      //print(valuein);      
       flexBytesNotifier.value = valuein;
       m0Notifier.value = valuein[1] << 8 | valuein[0];
       m1Notifier.value = valuein[3] << 8 | valuein[2];
@@ -58,7 +58,8 @@ class Node{
     }
 
     gloCharacteristic = service.characteristics[1];
-    var lastGloSub = gloCharacteristic.lastValueStream.listen((valuein) {
+    var lastGloSub = gloCharacteristic.onValueReceived.listen((valuein) {
+      print(valuein);
       gloBytesNotifier.value = valuein;
     });
     device.cancelWhenDisconnected(lastGloSub);
@@ -99,7 +100,36 @@ class Node{
     await gloCharacteristic.write(gloMsg);
   }
 
-  void readGlo() async{
-    await gloCharacteristic.read();
+  Future<List<int>> readGlo() async{
+    gloCharacteristic.read().then((val) => gloBytesNotifier.value = val);
+    print(gloBytesNotifier.value);
+    return gloBytesNotifier.value;
+  }
+
+  Future<Color> gloFromMuscle(int muscleSite)async{
+    List<int> value = await readGlo();
+    Color color;
+
+    if(muscleSite == 0){
+      color = Color.fromRGBO(value[0], value[1], value[2], 1.0);
+    }
+    else if(muscleSite == 1){
+      color = Color.fromRGBO(value[3], value[4], value[5], 1.0);
+    }
+    else{
+      throw "MuscleSite different than 0\\1";
+    }
+
+    return color;
+  }
+
+  void dispose(){
+    serviceUuidNotifier.dispose();
+    flexBytesNotifier.dispose();
+    m0Notifier.dispose();
+    m1Notifier.dispose();
+    bpmNotifier.dispose();
+    gloBytesNotifier.dispose();
+    connectionStateNotifier.dispose();
   }
 }

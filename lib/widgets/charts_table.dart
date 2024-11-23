@@ -75,8 +75,8 @@ class _TopBarState extends State<TopBar>{
     if (availableMuscles.contains(selectedMuscle)) {
       var chart = Provider.of<ChartsData>(context, listen: false).addChart(selectedMuscle);
       widget.onSelected(chart);
+      availableMuscles.remove(selectedMuscle);
     }
-    availableMuscles.remove(selectedMuscle);
   }
 
   @override
@@ -85,6 +85,7 @@ class _TopBarState extends State<TopBar>{
       constraints: BoxConstraints.expand(
         height: Theme.of(context).textTheme.headlineMedium!.fontSize! * 1.1+50,
       ),
+      margin: const EdgeInsets.all(5),
       padding: const EdgeInsets.all(8),
       alignment: Alignment.center,
       decoration: BoxDecoration(

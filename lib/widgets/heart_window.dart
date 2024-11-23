@@ -21,7 +21,7 @@ class HeartWindowButton extends StatelessWidget{
               context: context,
               builder: (BuildContext context){
                 return AlertDialog(
-                  title: Text('Node ${node.id} for heart rate data is not connected'),
+                  title: Text('Node ${node.id} for Heart Rate Data is not connected'),
                   content: Text('Make sure node ${node.id} is connected in the Bluetooth menu'),
                   actions: <Widget>[
                     TextButton(

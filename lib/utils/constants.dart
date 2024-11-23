@@ -1,4 +1,14 @@
+import 'package:flutter/material.dart';
 
+// **Number explanations:**
+// Center node is node 0
+// Muscle sites are numbered up to down, left to right
+// Other nodes are 1-4, left to right
+// example: left arm node is node 1, right arm is node 4
+//
+// Muscle sites are numbered up to down and left to right 
+// on the guy flexing, heart is the only muscle site with #2
+// example: bicep is muscle 0, tricep is muscle 1
 const List<String> MUSCLESITES = [
   "Left Bicep Brachii",       // Node 1, Muscle 0
   "Right Bicep Brachii",      // Node 4, Muscle 0
@@ -11,3 +21,15 @@ const List<String> MUSCLESITES = [
   "Left Deltoid (Shoulder)",  // Node 2, Muscle 0
   "Right Deltoid (Shoulder)", // Node 3, Muscle 0
 ];
+
+const List<Color> COLORLIST = [
+  Color.fromRGBO(0xFF, 0, 0, 1.0),
+  Color.fromRGBO(0, 0xFF, 0, 1.0),
+  Color.fromRGBO(0, 0, 0xFF, 1.0),
+  Color.fromRGBO(0, 0xFF, 0xFF, 1.0),
+  Color.fromRGBO(0xFF, 0, 0xFF, 1.0),
+  Color.fromRGBO(0xFF, 0xFF, 0, 1.0),
+  Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0)
+];
+
+const Color DEFAULTCOLOR = Color.fromRGBO(0, 0xFF, 0, 1.0);
