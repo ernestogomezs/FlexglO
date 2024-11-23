@@ -635,6 +635,7 @@ void init_BLE(){
   descriptor_glo->setAccessPermissions(ESP_GATT_PERM_WRITE);  // enforce read only - default is Read|Write
   gloCharacteristic->addDescriptor(descriptor_glo);
   gloCharacteristic->setCallbacks(new MyCallbacks());
+  gloCharacteristic->setValue((uint8_t*)BLE_in_packet, 6);
   pService->start();
   xTaskCreatePinnedToCore(process_BLE, "Process BLE", 4048, NULL, priority::low, &process_BLE_handle, 0);
 }
