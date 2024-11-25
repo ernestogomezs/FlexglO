@@ -33,3 +33,35 @@ const List<Color> COLORLIST = [
 ];
 
 const Color DEFAULTCOLOR = Color.fromRGBO(0, 0xFF, 0, 1.0);
+const List<int> DEFAULT_GLO = [0, 0xFF, 0, 0, 0xFF, 0, 0, 0];
+
+const String DEFAULT_ID = "00000000-0000-0000-0000-000000000000";
+
+const int MUSCLECOUNT = 5;
+const int WINDOWSIZE = 16;
+const int ACTIVEVAL = 500;
+const int AMT_EXERCISES = 3;
+
+enum MuscleGroups{
+  Biceps,
+  Triceps,
+  Chest,
+  Lats,
+  Shoulders;
+
+  @override
+  String toString(){
+    return super.toString().substring(super.toString().indexOf('.')+1);
+  }
+}
+
+enum Exercises{
+  Pushups,
+  Pullups,
+  Curls;
+
+  @override
+  String toString(){
+    return super.toString().substring(super.toString().indexOf('.')+1);
+  }
+}

@@ -7,6 +7,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import 'models/chartsdata.dart';
 import 'models/nodesdata.dart';
+import 'models/workout.dart';
+
 import 'utils/snackbar.dart';
 
 import 'screens/bluetooth_off_screen.dart';
@@ -16,6 +18,8 @@ import 'widgets/log_stopwatch.dart';
 import 'widgets/charts_table.dart';
 import 'widgets/window_mannequin.dart';
 import 'widgets/connection_status.dart';
+import 'widgets/workout_table.dart';
+import 'widgets/workout_counter.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,6 +37,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ChartsData()
+        ),
+        ChangeNotifierProvider(
+          create: (context) => Workout(context)
         ),
         ChangeNotifierProvider(
           create: (context) => MyAppState()
@@ -90,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 2:
         page = LogPage();
       case 3:
-        page = Placeholder();
+        page = WorkoutPage();
       case 4:
         page = Placeholder();
       default:
@@ -271,6 +278,46 @@ class _LogPageState extends State<LogPage> {
             const SizedBox(height: 20.0),
             LogStopwatch(_startStopwatch, _resetStopwatch, _elapsedTime, _stopwatchRunning),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class WorkoutPage extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return ScaffoldMessenger(
+      key: Snackbar.snackBarKeyB,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Workout Data'),
+        ),
+        body: Column(
+          children:<Widget>[
+            Expanded(
+              flex: 2,
+              child: WorkoutTable()
+            ), 
+            Expanded(
+              flex: 1,
+              child: WorkoutCounterWidget(Axis.horizontal)
+            )
+            // Column(
+            //   children: <Widget>[
+            //     Expanded(
+            //       child: SizedBox(
+            //         height: 20,
+            //         child: RepTable(),
+            //       ),
+            //     ),
+            //     Expanded(
+            //       flex: 2,
+            //       child: WorkoutCounterWidget(Axis.vertical)
+            //     )
+            //   ]
+            // ),
+          ]
         ),
       ),
     );

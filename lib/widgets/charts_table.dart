@@ -20,7 +20,11 @@ class _ChartsTableState extends State<ChartsTable>{
   List<ChartWidget> chartsWidgets = [];
 
   void _addNewChart(Chart chart){
-    chartsWidgets.add(ChartWidget(chart));
+    chartsWidgets.add(ChartWidget(chart, _deleteChart));
+  }
+
+  void _deleteChart(Chart chart){
+    chartsWidgets.remove(chart);
   }
 
   @override

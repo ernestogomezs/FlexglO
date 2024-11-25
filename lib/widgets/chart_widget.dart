@@ -6,9 +6,10 @@ import '/models/chartsdata.dart';
 import '/models/nodesdata.dart';
 
 class ChartWidget extends StatefulWidget{
-  ChartWidget(this.chart, {Key? key}) : super(key: key);
+  ChartWidget(this.chart, this.onDelete, {Key? key}) : super(key: key);
 
   final Chart chart;
+  final void Function(Chart) onDelete;
 
   @override
   State<ChartWidget> createState() => _ChartState();
@@ -42,8 +43,21 @@ class _ChartState extends State<ChartWidget>{
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context){
+  Widget buildBar(){
+    return Row(
+      children: [
+        Text(widget.chart.muscle),
+        ElevatedButton(
+          child: Icon(Icons.delete),
+          onPressed: (){
+            widget.onDelete;
+          },
+        )
+      ],
+    );
+  }
+
+  Widget buildGraph(){
     return Expanded(
       flex: 1,
       child: Container(
@@ -52,23 +66,18 @@ class _ChartState extends State<ChartWidget>{
           borderRadius: BorderRadius.circular(4)
         ),
         margin: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            // Row(
-            //   children: [
-            //     Text(widget.chart.muscle),
-            //     ElevatedButton(
-            //       onPressed: (){
-                    
-            //       }, 
-            //       child: Icon(Icons.delete)
-            //     )
-            //   ],
-            // ),
-            scope
-          ]
-        )
+        child: scope
       )
+    );
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return Column(
+      children: <Widget>[
+        buildBar(),
+        buildGraph()
+      ]
     );
   }
 }

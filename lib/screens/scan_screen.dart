@@ -69,9 +69,8 @@ class _ScanScreenState extends State<ScanScreen> {
     }
     
     if(mounted){
-      var newNode =  Node(result.device);
-      newNode.init();
-      Provider.of<NodesData>(context, listen: false).replaceNode(newNode.id, newNode);
+      var id = int.parse(result.device.platformName.substring(result.device.platformName.length - 1));
+      Provider.of<NodesData>(context, listen: false).replaceNode(id, result.device);
       setState(() {});
     }
   }
@@ -89,7 +88,7 @@ class _ScanScreenState extends State<ScanScreen> {
     }
 
     if(mounted){
-      Provider.of<NodesData>(context, listen: false).replaceNode(d.id, Node.def(d.id));
+      Provider.of<NodesData>(context, listen: false).clearNode(d.id);
       setState(() {});
     }
   }

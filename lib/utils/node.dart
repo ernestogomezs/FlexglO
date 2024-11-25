@@ -1,7 +1,6 @@
+import '/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
-const String DEFAULT_ID = "00000000-0000-0000-0000-000000000000";
 
 class Node{
   late int id;
@@ -17,7 +16,8 @@ class Node{
   late ValueNotifier<int> bpmNotifier = ValueNotifier<int>(0);
   
   late BluetoothCharacteristic gloCharacteristic;
-  late ValueNotifier<List<int>> gloBytesNotifier = ValueNotifier<List<int>>([]);
+  late ValueNotifier<List<int>> gloBytesNotifier = 
+    ValueNotifier<List<int>>(DEFAULT_GLO);
 
   late ValueNotifier<bool> connectionStateNotifier = ValueNotifier<bool>(isConnected);
 
@@ -37,15 +37,17 @@ class Node{
     flexCharacteristic = service.characteristics[0];
 
     device.connectionState.listen((state) {
-      connectionStateNotifier.value = state == BluetoothConnectionState.connected;
+      connectionStateNotifier.value = isConnected;
     });
 
     var lastFlexSub = flexCharacteristic.onValueReceived.listen((valuein) {
-      //print(valuein);      
       flexBytesNotifier.value = valuein;
       m0Notifier.value = valuein[1] << 8 | valuein[0];
       m1Notifier.value = valuein[3] << 8 | valuein[2];
-      bpmNotifier.value = valuein[5] << 8 | valuein[4];
+      if(id == 0){
+        bpmNotifier.value = valuein[5] << 8 | valuein[4];
+      }
+      
     });
     device.cancelWhenDisconnected(lastFlexSub);
     try{
@@ -59,7 +61,6 @@ class Node{
 
     gloCharacteristic = service.characteristics[1];
     var lastGloSub = gloCharacteristic.onValueReceived.listen((valuein) {
-      print(valuein);
       gloBytesNotifier.value = valuein;
     });
     device.cancelWhenDisconnected(lastGloSub);
@@ -71,6 +72,8 @@ class Node{
         print("Stupid ahh bug, don't worry. Pops up when subscribing but shouldn't be a problem");
       }
     }
+
+    await gloCharacteristic.write(gloBytesNotifier.value);
   }
 
   bool get isConnected {
@@ -96,18 +99,17 @@ class Node{
       gloMsg[4] = currentColor.green;
       gloMsg[5] = currentColor.blue;
     }
-    
+    gloBytesNotifier.value = gloMsg;
     await gloCharacteristic.write(gloMsg);
   }
 
   Future<List<int>> readGlo() async{
-    gloCharacteristic.read().then((val) => gloBytesNotifier.value = val);
-    print(gloBytesNotifier.value);
+    gloCharacteristic.read().then((val) {gloBytesNotifier.value = val;});
     return gloBytesNotifier.value;
   }
 
   Future<Color> gloFromMuscle(int muscleSite)async{
-    List<int> value = await readGlo();
+    List<int> value = gloBytesNotifier.value;
     Color color;
 
     if(muscleSite == 0){
