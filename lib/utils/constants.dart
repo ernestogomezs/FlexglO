@@ -37,6 +37,8 @@ const List<int> DEFAULT_GLO = [0, 0xFF, 0, 0, 0xFF, 0, 0, 0];
 
 const String DEFAULT_ID = "00000000-0000-0000-0000-000000000000";
 
+const int CHART_TIMESTEP_MS = 64;
+
 const int MUSCLECOUNT = 5;
 const int WINDOWSIZE = 16;
 const int ACTIVEVAL = 500;

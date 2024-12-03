@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:oscilloscope/oscilloscope.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:provider/provider.dart';
 
-import '/models/nodesdata.dart';
 import '/utils/node.dart';
 import '/utils/constants.dart';
 
@@ -27,13 +25,13 @@ class SensorWindowButton extends StatefulWidget{
 }
    
 class _SensorWindowButtonState extends State<SensorWindowButton> {
-  Color muscleColor = DEFAULTCOLOR;
+  late Color muscleColor = widget.node.gloFromMuscle(widget.muscleSite);
 
   @override
   void initState() {
     widget.node.connectionStateNotifier.addListener((){
       if(widget.node.isConnected){
-        widget.node.gloFromMuscle(widget.muscleSite).then((value) => muscleColor = value);
+        muscleColor = widget.node.gloFromMuscle(widget.muscleSite);
       }
       else{
         muscleColor = Colors.black;
@@ -43,7 +41,7 @@ class _SensorWindowButtonState extends State<SensorWindowButton> {
       }
     });
     widget.node.gloBytesNotifier.addListener((){
-      widget.node.gloFromMuscle(widget.muscleSite).then((value) => muscleColor = value);
+      muscleColor = widget.node.gloFromMuscle(widget.muscleSite);
       if(mounted){
         setState((){});
       }
@@ -60,7 +58,6 @@ class _SensorWindowButtonState extends State<SensorWindowButton> {
         closedBuilder: (context, openContainer){
           return GestureDetector(
             onTap: () {
-              Provider.of<NodesData>(context, listen: false).notifierFromMuscle(widget.muscle);
               if(!widget.node.connectionStateNotifier.value){
                 showDialog(
                   context: context,
@@ -130,14 +127,11 @@ class _SensorWindowState extends State<SensorWindow> {
   Timer? _timer;
   late Color currentColor;
 
-  /// method to generate wave pattern
   _generateTrace(Timer t) {
-    // Read latest value
     int muscleIntensityValue = (widget.muscleSite == 0)? 
       widget.node.m0Notifier.value : 
       widget.node.m1Notifier.value;
 
-    // Add latest read value to the growing dataset
     setState(() {
       trace.add(muscleIntensityValue);
     });
@@ -151,7 +145,6 @@ class _SensorWindowState extends State<SensorWindow> {
   @override
   initState() {
     widget.node.readGlo();
-    // create our timer to generate test values
     _timer = Timer.periodic(Duration(milliseconds: 64), _generateTrace);
     currentColor = Color.fromRGBO(widget.node.gloBytesNotifier.value[0 + widget.muscleSite * 3], 
                                   widget.node.gloBytesNotifier.value[1 + widget.muscleSite * 3], 
@@ -170,9 +163,9 @@ class _SensorWindowState extends State<SensorWindow> {
   Widget build(BuildContext context){
     Oscilloscope scopeOne = Oscilloscope(
       showYAxis: true,
-      yAxisColor: Colors.grey,
+      yAxisColor: Colors.black,
       margin: EdgeInsets.all(20.0),
-      strokeWidth: 3.0,
+      strokeWidth: 2.0,
       backgroundColor: Colors.white,
       traceColor: (currentColor == Colors.white)? Colors.black : currentColor,
       yAxisMax: 2050,
@@ -181,6 +174,7 @@ class _SensorWindowState extends State<SensorWindow> {
     );
 
     return Scaffold(
+      backgroundColor: Colors.black12,
       appBar: AppBar(
         title: Text(widget.muscle),
         backgroundColor: Colors.white

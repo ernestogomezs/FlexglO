@@ -13,9 +13,8 @@ import 'utils/snackbar.dart';
 
 import 'screens/bluetooth_off_screen.dart';
 import 'screens/scan_screen.dart';
+import 'screens/log_page_screen.dart';
 
-import 'widgets/log_stopwatch.dart';
-import 'widgets/charts_table.dart';
 import 'widgets/window_mannequin.dart';
 import 'widgets/connection_status.dart';
 import 'widgets/workout_table.dart';
@@ -33,10 +32,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => NodesData()
+          create: (context) => NodesData(context)
         ),
         ChangeNotifierProvider(
-          create: (context) => ChartsData()
+          create: (context) => ChartsData(context)
         ),
         ChangeNotifierProvider(
           create: (context) => Workout(context)
@@ -98,8 +97,6 @@ class _MyHomePageState extends State<MyHomePage> {
         page = LogPage();
       case 3:
         page = WorkoutPage();
-      case 4:
-        page = Placeholder();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -128,10 +125,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icon(Icons.fitness_center),
                       label: Text('Fitness Center'),
                     ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.settings),
-                      label: Text('Settings'),
-                    )
                   ],
                   selectedIndex: selectedIndex,
                   onDestinationSelected: (value) {
@@ -168,10 +161,9 @@ class NodesPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ConnectionConsole(),
-              const SizedBox(height: 20),
               WindowMannequin(),
-              const SizedBox(height: 20),
-              //WorkoutCounter()
+              WorkoutCounterWidget(Axis.horizontal),
+              const SizedBox(height: 60),
             ]
           ),
       )
@@ -199,70 +191,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
   }
 }
 
-class LogPage extends StatefulWidget{
-  const LogPage({Key? key}) : super(key: key);
-
-  @override
-  State<LogPage> createState() => _LogPageState();
-}
-
-class _LogPageState extends State<LogPage> {
-  final Stopwatch _stopwatch = Stopwatch();
-  late ValueNotifier<Duration> _elapsedTime = ValueNotifier<Duration>(Duration.zero);
-  late Timer _timer;
-  late ValueNotifier<bool> _stopwatchRunning = ValueNotifier<bool>(false);
-
-  @override
-  initState(){
-    super.initState();
-
-    _elapsedTime.value = Duration.zero;
-
-    // Create a timer that runs a callback every 100 milliseconds to update UI
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (Timer timer) {
-      setState(() {
-        // Update elapsed time only if the stopwatch is running
-        if (_stopwatch.isRunning) {
-          _updateElapsedTime();
-        }
-      });
-    });
-  }
-
-  // Start/Stop button callback
-  void _startStopwatch() {
-    if (!_stopwatch.isRunning) {
-      // Start the stopwatch and update elapsed time
-      _stopwatch.start();
-      _updateElapsedTime();
-    } else {
-      // Stop the stopwatch
-      _stopwatch.stop();
-    }
-    _stopwatchRunning.value = _stopwatch.isRunning;
-  }
-  
-  // Reset button callback
-  void _resetStopwatch() {
-    // Reset the stopwatch to zero and update elapsed time
-    _stopwatch.reset();
-    _updateElapsedTime();
-    _stopwatchRunning.value = _stopwatch.isRunning;
-  }
-
-  // Update elapsed time and formatted time string
-  void _updateElapsedTime() {
-    setState(() {
-      _elapsedTime.value = _stopwatch.elapsed;
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-  
+class LogPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
@@ -271,14 +200,7 @@ class _LogPageState extends State<LogPage> {
         appBar: AppBar(
           title: const Text('Log Data'),
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            ChartsTable(_elapsedTime),
-            const SizedBox(height: 20.0),
-            LogStopwatch(_startStopwatch, _resetStopwatch, _elapsedTime, _stopwatchRunning),
-          ],
-        ),
+        body: LogPageScreen()
       ),
     );
   }
@@ -294,29 +216,12 @@ class WorkoutPage extends StatelessWidget{
           title: const Text('Workout Data'),
         ),
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children:<Widget>[
-            Expanded(
-              flex: 2,
-              child: WorkoutTable()
-            ), 
-            Expanded(
-              flex: 1,
-              child: WorkoutCounterWidget(Axis.horizontal)
-            )
-            // Column(
-            //   children: <Widget>[
-            //     Expanded(
-            //       child: SizedBox(
-            //         height: 20,
-            //         child: RepTable(),
-            //       ),
-            //     ),
-            //     Expanded(
-            //       flex: 2,
-            //       child: WorkoutCounterWidget(Axis.vertical)
-            //     )
-            //   ]
-            // ),
+            Expanded(child: WorkoutTable()),
+            const SizedBox(height: 20.0),
+            WorkoutCounterWidget(Axis.horizontal),
+            const SizedBox(height: 60),
           ]
         ),
       ),

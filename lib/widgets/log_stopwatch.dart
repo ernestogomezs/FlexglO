@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class LogStopwatch extends StatefulWidget{
-  LogStopwatch(this.startStopwatch, 
-               this.resetStopwatch,
-               this.elapsedTimeListener,
+  LogStopwatch(this.elapsedTimeListener,
                this.stopwatchRunning,
+               this.startStopwatch, 
+               this.resetStopwatch,
+               this.download,
                {Key? key}) : super(key: key);
 
   final VoidCallback? startStopwatch;
   final VoidCallback? resetStopwatch;
+  final VoidCallback? download;
   final ValueNotifier<Duration> elapsedTimeListener;
   final ValueNotifier<bool> stopwatchRunning;
 
@@ -52,10 +54,15 @@ class _LogStopwatchState extends State<LogStopwatch>{
                 onPressed: widget.resetStopwatch,
                 child: const Text('Reset'),
               ),
-              const SizedBox(width: 20.0),
+              const SizedBox(width: 10.0),
               ElevatedButton(
                 onPressed: widget.startStopwatch,
                 child: Text(widget.stopwatchRunning.value? 'Stop Session' : 'Start Session'),
+              ),
+              const SizedBox(width: 10.0),
+              ElevatedButton(
+                onPressed: widget.download, //widget.stopwatchRunning.value? widget.download : null,
+                child: Icon(Icons.download),
               ),
             ],
           ),

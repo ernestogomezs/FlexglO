@@ -5,12 +5,51 @@ import 'package:provider/provider.dart';
 import '/models/workout.dart';
 
 class WorkoutTable extends StatelessWidget {
-  Widget buildArrayWidget(List<List<int>> array, Color color, Axis direction, {bool isRepTable = false}) {
+  Widget buildArrayWidget(List<List<int>> array, 
+                          Color color, 
+                          Axis direction, 
+                          {bool isRepTable = false}) {
+
     int index = 0;
+    List<Container> list = [];
+
+    // array.map((row){
+    //   print('MMG');
+    //   print(row);
+    //   list += row.map((item){
+    //     print(item);
+    //     return Container(
+    //       decoration: BoxDecoration(
+    //       border: Border.all(color: color),
+    //       borderRadius: BorderRadius.circular(8.0),
+    //       ),
+    //       child: SizedBox(
+    //         width: 10,
+    //         child: Center(
+    //           child: Text(
+    //             item.toString(),
+    //             style: TextStyle(fontSize: 16),
+    //           ),
+    //         ),
+    //       ),
+    //     );
+    //   }).toList();
+    // });
+
     if(array.isEmpty){
       return Text("No recorded reps", style: TextStyle(fontWeight: FontWeight.bold),);
     }
     else{
+      // return SizedBox(
+      //   width: 100,
+      //   height: 400,
+      //   child: GridView.count(
+      //     crossAxisCount: MUSCLECOUNT,
+      //     crossAxisSpacing: 5,
+      //     mainAxisSpacing: 10,
+      //     children: list
+      //   ),
+      // );
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -75,6 +114,7 @@ class WorkoutTable extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: column.map((item) {
         return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
               width: 80,
@@ -102,66 +142,78 @@ class WorkoutTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Column(
-          children: <Widget>[
-            Text(
-              "Last Recorded \nMuscle Activation", 
-              softWrap: true,
-              textAlign: TextAlign.center,
-            ), 
-            ValueListenableBuilder(
-              valueListenable: Provider.of<Workout>(context, listen: false).functors, 
-              builder: (context, muscleRow, child){
-                var row = muscleRow.map((val) => val.value).toList();
-                return buildRowWidget(row);
-              }
-            ),
-            Text("Rep Table"), 
-            ValueListenableBuilder(
-              valueListenable: Provider.of<Workout>(context, listen: false).table, 
-              builder: (context, table, child){
-                return buildArrayWidget(table, Colors.blue, Axis.vertical);
-              }
-            ),
-          ]
-        ),
-        Column(
-          children: [
-            Text("Last Recorded Rep"), 
-            Builder(
-              builder: (context){
-                List<Widget> list = [];
-                for(int i = 0; i < MUSCLECOUNT; ++i){
-                  list.add(SizedBox(
-                    width: 30,
-                    child: Text(
-                      MuscleGroups.values[i].toString()[0],
-                      textAlign: TextAlign.center,
-                    ),
-                  ));
+        Expanded(
+          child: Column(
+            children: <Widget>[
+              Text(
+                "Last Recorded \nMuscle Activation", 
+                softWrap: true,
+                textAlign: TextAlign.center,
+              ), 
+              ValueListenableBuilder(
+                valueListenable: Provider.of<Workout>(context, listen: false).functors, 
+                builder: (context, muscleRow, child){
+                  var row = muscleRow.map((val) => val.value).toList();
+                  return buildRowWidget(row);
                 }
-                return Row(
-                  children: list,
-                );
-              },
-            ),
-            ValueListenableBuilder(
-              valueListenable: Provider.of<Workout>(context, listen: false).lastRep, 
-              builder: (context, table, child){
-                return buildArrayWidget(table, Colors.green, Axis.vertical);
-              }
-            ),
-
-            SizedBox(height: 100),
-
-            Text("Muscle Rankings"), 
-            ValueListenableBuilder(
-              valueListenable: Provider.of<Workout>(context, listen: false).rankings, 
-              builder: (context, table, child){
-                return buildColumnWidget(table);
-              }
-            ),
-          ]
+              ),
+              Text("Rep Table"), 
+              ValueListenableBuilder(
+                valueListenable: Provider.of<Workout>(context, listen: false).table, 
+                builder: (context, table, child){
+                 return buildArrayWidget(table, Colors.blue, Axis.vertical);
+                }
+              ),
+            ]
+          ),
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              Text("Last Recorded Rep"), 
+              Builder(
+                builder: (context){
+                  List<Widget> list = [];
+                  for(int i = 0; i < MUSCLECOUNT; ++i){
+                    list.add(SizedBox(
+                      width: 30,
+                      child: Text(
+                        MuscleGroups.values[i].toString()[0],
+                        textAlign: TextAlign.center,
+                      ),
+                    ));
+                  }
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: list,
+                  );
+                },
+              ),
+              ValueListenableBuilder(
+                valueListenable: Provider.of<Workout>(context, listen: false).lastRep, 
+                builder: (context, table, child){
+                  return buildArrayWidget(table, Colors.green, Axis.vertical);
+                }
+              ),
+          
+              SizedBox(height: 10),
+          
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Column(
+                  children: [
+                    Text("Muscle Rankings"), 
+                    ValueListenableBuilder(
+                      valueListenable: Provider.of<Workout>(context, listen: false).rankings, 
+                      builder: (context, table, child){
+                        return buildColumnWidget(table);
+                      }
+                    ),
+                  ]
+                )
+              )
+            ]
+          ),
         )
       ],
     );

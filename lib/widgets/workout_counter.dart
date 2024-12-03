@@ -18,32 +18,43 @@ class WorkoutCounterWidgetState extends State<WorkoutCounterWidget> {
   Widget build(BuildContext context) {
     WorkoutCounter workoutCounter = Provider.of<Workout>(context, listen:false).workoutCounter;
     int exerciseIndex = 0;
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey,
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(
-          color: Colors.black,
-          width: 2
-        )
-      ),
-      child: ToggleLayoutWidget(
-        direction: widget.direction,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Flex(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          ...workoutCounter.counter.map((exercise){
-            return buildExerciseCounter(exercise, exerciseIndex++);
-          }).toList(),
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () => workoutCounter.reset(),
-                child: Icon(Icons.refresh),
-              ),
+        direction: Axis.vertical,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(
+                color: Colors.black,
+                width: 2
+              )
             ),
-          )
-        ] 
+            child: SizedBox(
+              child: ToggleLayoutWidget(
+                  direction: widget.direction,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    ...workoutCounter.counter.map((exercise){
+                      return buildExerciseCounter(exercise, exerciseIndex++);
+                    }).toList(),
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: ElevatedButton(
+                          onPressed: () => workoutCounter.reset(),
+                          child: Icon(Icons.refresh),
+                        ),
+                      ),
+                    )
+                  ] 
+                ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -104,11 +104,11 @@ class Node{
   }
 
   Future<List<int>> readGlo() async{
-    gloCharacteristic.read().then((val) {gloBytesNotifier.value = val;});
+    //gloCharacteristic.read().then((val) {gloBytesNotifier.value = val;});
     return gloBytesNotifier.value;
   }
 
-  Future<Color> gloFromMuscle(int muscleSite)async{
+  Color gloFromMuscle(int muscleSite){
     List<int> value = gloBytesNotifier.value;
     Color color;
 

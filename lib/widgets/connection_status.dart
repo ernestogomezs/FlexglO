@@ -8,25 +8,25 @@ class ConnectionConsole extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[
-        Row(
-          children: Provider.of<NodesData>(context, listen:false).nodes
-            .map(
-            (n) => ConnectionStatus(
-              n,
+        children: <Widget>[
+          Row(
+            children: Provider.of<NodesData>(context, listen:false).nodes
+              .map(
+              (n) => ConnectionStatus(
+                n,
+              )
+            ).toList()
+          ),
+          Text(
+            "Connection Status",
+            style: TextStyle(
+              //fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              fontSize: 18
             )
-          ).toList()
-        ),
-        Text(
-          "Connection Status",
-          style: TextStyle(
-            //fontWeight: FontWeight.bold,
-            color: Colors.grey,
-            fontSize: 18
-          )
-        ), 
-      ]
-    );
+          ), 
+        ]
+      );
   }
 }
 
@@ -69,22 +69,24 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(1),
-      child: Container(
-        padding: EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+        child: Container(
+          padding: EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black
+            ),
+            borderRadius: BorderRadius.circular(4)
           ),
-          borderRadius: BorderRadius.circular(4)
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildTitle(context),
-            _buildConnectedStatusLight()
-          ]
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildTitle(context),
+              _buildConnectedStatusLight()
+            ]
+          ),
         ),
       ),
     );

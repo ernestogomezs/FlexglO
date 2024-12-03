@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:oscilloscope/oscilloscope.dart';
+
+import '/widgets/flexglow_line_chart.dart';  
 
 import '/models/chartsdata.dart';
 import '/models/nodesdata.dart';
 
 class ChartWidget extends StatefulWidget{
-  ChartWidget(this.chart, this.onDelete, {Key? key}) : super(key: key);
+  ChartWidget(this.chart, {Key? key}) : super(key: key);
 
   final Chart chart;
-  final void Function(Chart) onDelete;
 
   @override
   State<ChartWidget> createState() => _ChartState();
 }
 
 class _ChartState extends State<ChartWidget>{
-  late Oscilloscope scope;
+  late FlexGlowLineChart scope;
 
   @override
   void initState() {
-    widget.chart.muscleValue = Provider.of<NodesData>(context, listen: false).notifierFromMuscle(widget.chart.muscle);
+    print("MMG");
+    widget.chart.muscleValue = 
+      Provider.of<NodesData>(context, listen: false).notifierFromMuscle(widget.chart.muscle);
 
-    scope = Oscilloscope(
-      showYAxis: true,
-      yAxisColor: Colors.black,
-      margin: EdgeInsets.all(20.0),
-      strokeWidth: 2.0,
-      backgroundColor: Colors.white,
-      traceColor: Colors.black,
-      yAxisMax: 2050,
-      yAxisMin: 0,
-      dataSet: widget.chart.data,
+    Provider.of<ChartsData>(context, listen: false).addListener(() {
+        if(mounted){
+          setState((){});
+        }
+      }
+    );
 
+    scope = FlexGlowLineChart(
+      chart: widget.chart
     );
 
     super.initState();
@@ -44,31 +44,39 @@ class _ChartState extends State<ChartWidget>{
   }
 
   Widget buildBar(){
-    return Row(
-      children: [
-        Text(widget.chart.muscle),
-        ElevatedButton(
-          child: Icon(Icons.delete),
-          onPressed: (){
-            widget.onDelete;
-          },
-        )
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.symmetric(
+          horizontal: BorderSide(color: Colors.grey, width: 1)
+        ),
+        color: Colors.white,
+      ),
+      height: 50,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                widget.chart.muscle, 
+                style: TextStyle(fontWeight: FontWeight.bold)
+              )
+            ),
+            ElevatedButton(
+              child: Icon(Icons.delete),
+              onPressed: (){
+                Provider.of<ChartsData>(context, listen: false).removeChart(widget.chart.muscle);
+                Provider.of<NodesData>(context, listen: false).removeChart(widget.chart.muscle);
+              },
+            )
+          ],
+        ),
+      ),
     );
   }
 
   Widget buildGraph(){
-    return Expanded(
-      flex: 1,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(width: 4.0, color: Colors.grey),
-          borderRadius: BorderRadius.circular(4)
-        ),
-        margin: const EdgeInsets.all(5),
-        child: scope
-      )
-    );
+    return scope;
   }
 
   @override

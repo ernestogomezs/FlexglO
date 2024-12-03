@@ -51,6 +51,17 @@ class Workout extends ChangeNotifier{
     functors.addListener(() => insertChange());
   }
 
+  // void initNode(int nodeId){
+  //   functors.insert(MaxValueNotifier(0, notifierL, notifierR, muscleGroup), muscleGroup);
+
+  //   nodesData.notifierFromMuscle(MUSCLESITES[mL]).addListener((){
+  //     functors.value[muscleGroup].getMaxMuscle();
+  //   });
+  //   nodesData.notifierFromMuscle(MUSCLESITES[mR]).addListener((){
+  //     functors.value[muscleGroup].getMaxMuscle();
+  //   });   
+  // }
+
   void insertChange(){
     table.value[currentRow] = functors.value.map((muscle) => muscle.value).toList();
     table.notifyListeners();
@@ -124,16 +135,20 @@ class WorkoutCounter {
     List<List<int>> rep = transpose(originalRep);
     
     // Sort analyzed counts to figure out the exercise being done
+    List<int> sums = List<int>.filled(MUSCLECOUNT, 0);
     List<Pair> rankings = [Pair.empty(), Pair.empty(), Pair.empty(), Pair.empty(), Pair.empty()];
     for (int i = 0; i < MUSCLECOUNT; ++i){
       rankings[i].muscleGroup = MuscleGroups.values[i];
       rankings[i].sum = rep[i].reduce((left, right) => left + right);
+      sums[i] = rankings[i].sum;
     }
     insertionSort(rankings);
 
     // Find the muscle that was active the most, and determine the exercise 
     if(rankings.last.muscleGroup == MuscleGroups.Chest){
-      counter[Exercises.Pushups.index].value++;
+      if(sums[MuscleGroups.Triceps.index] > 3){
+        counter[Exercises.Pushups.index].value++;
+      }
     }
     else if(rankings.last.muscleGroup == MuscleGroups.Lats){
       counter[Exercises.Pullups.index].value++;
