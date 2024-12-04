@@ -20,7 +20,6 @@ class _ChartState extends State<ChartWidget>{
 
   @override
   void initState() {
-    print("MMG");
     widget.chart.muscleValue = 
       Provider.of<NodesData>(context, listen: false).notifierFromMuscle(widget.chart.muscle);
 
@@ -66,7 +65,7 @@ class _ChartState extends State<ChartWidget>{
               child: Icon(Icons.delete),
               onPressed: (){
                 Provider.of<ChartsData>(context, listen: false).removeChart(widget.chart.muscle);
-                Provider.of<NodesData>(context, listen: false).removeChart(widget.chart.muscle);
+                Provider.of<NodesData>(context, listen: false).removeMuscle(widget.chart.muscle);
               },
             )
           ],

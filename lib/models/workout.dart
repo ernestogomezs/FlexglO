@@ -40,6 +40,8 @@ class Workout extends ChangeNotifier{
 
       functors.insert(MaxValueNotifier(0, notifierL, notifierR, muscleGroup), muscleGroup);
 
+      print('a');
+
       nodesData.notifierFromMuscle(MUSCLESITES[mL]).addListener((){
         functors.value[muscleGroup].getMaxMuscle();
       });
@@ -50,17 +52,6 @@ class Workout extends ChangeNotifier{
 
     functors.addListener(() => insertChange());
   }
-
-  // void initNode(int nodeId){
-  //   functors.insert(MaxValueNotifier(0, notifierL, notifierR, muscleGroup), muscleGroup);
-
-  //   nodesData.notifierFromMuscle(MUSCLESITES[mL]).addListener((){
-  //     functors.value[muscleGroup].getMaxMuscle();
-  //   });
-  //   nodesData.notifierFromMuscle(MUSCLESITES[mR]).addListener((){
-  //     functors.value[muscleGroup].getMaxMuscle();
-  //   });   
-  // }
 
   void insertChange(){
     table.value[currentRow] = functors.value.map((muscle) => muscle.value).toList();
@@ -189,13 +180,14 @@ class Pair{
   }
 }
 
+// Greater number goes to first place
 void insertionSort(List<Pair> arr) {
   int n = arr.length;
   for (int i = 1; i < n; i++) {
     Pair key = arr[i];
     int j = i - 1;
 
-    while (j >= 0 && arr[j].sum > key.sum) {
+    while (j >= 0 &&  key.sum > arr[j].sum) {
       arr[j + 1] = arr[j];
       j = j - 1;
     }

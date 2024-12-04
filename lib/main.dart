@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'FlexGlow App',
         theme: ThemeData(
           useMaterial3: true,
@@ -58,11 +59,10 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   BluetoothAdapterState adapterState = BluetoothAdapterState.unknown;
-  late StreamSubscription<BluetoothAdapterState> adapterStateStateSubscription;
+  late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
 
   void initState(){
-    adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
-      //print(state.toString());
+    _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       adapterState = state;
       notifyListeners();
     });
@@ -70,7 +70,7 @@ class MyAppState extends ChangeNotifier {
 
   @override
   void dispose(){
-    adapterStateStateSubscription.cancel();
+    _adapterStateStateSubscription.cancel();
     super.dispose();
   }
 }
@@ -81,14 +81,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+  var _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     appState.initState();
     Widget page;
-    switch (selectedIndex){ 
+    switch (_selectedIndex){ 
       case 0:
         page = NodesPage();
       case 1:
@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 3:
         page = WorkoutPage();
       default:
-        throw UnimplementedError('no widget for $selectedIndex');
+        throw UnimplementedError('no widget for $_selectedIndex');
     }
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -126,10 +126,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       label: Text('Fitness Center'),
                     ),
                   ],
-                  selectedIndex: selectedIndex,
+                  selectedIndex: _selectedIndex,
                   onDestinationSelected: (value) {
                     setState((){
-                      selectedIndex = value;
+                      _selectedIndex = value;
                     });
                   },
                 ),
@@ -183,9 +183,9 @@ class _BluetoothPageState extends State<BluetoothPage> {
   Widget build(BuildContext context) {
     return Consumer<MyAppState>(
       builder: (context, appState, child)=> Scaffold( 
-          body: (appState.adapterState == BluetoothAdapterState.on)? 
-            ScanScreen()
-            : BluetoothOffScreen(adapterState: appState.adapterState),
+        body: (appState.adapterState == BluetoothAdapterState.on)
+          ? ScanScreen()
+          : BluetoothOffScreen(adapterState: appState.adapterState),
       )
     );
   }

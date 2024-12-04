@@ -41,21 +41,22 @@ class _LogPageState extends State<LogPageScreen> {
     super.initState();
   }
 
-  void _startStopwatch() {
-    if (!_stopwatch.isRunning) {
+  void _toggleStopwatch() {
+    if(!_stopwatch.isRunning) {
+      _reset();
       _stopwatch.start();
-      _updateElapsedTime();
-    } else {
+    } 
+    else{
       _stopwatch.stop();
     }
-    _stopwatchRunning.value = _stopwatch.isRunning;
-  }
-  
-  void _resetStopwatch() {
-    _stopwatch.reset();
     _updateElapsedTime();
     _stopwatchRunning.value = _stopwatch.isRunning;
-    Provider.of<ChartsData>(context, listen: false).clearCharts();
+  }
+
+  void _reset(){
+    _stopwatch.reset();
+    _updateElapsedTime();
+    Provider.of<ChartsData>(context, listen: false).resetCharts();
   }
 
   void _updateElapsedTime() {
@@ -120,10 +121,10 @@ class _LogPageState extends State<LogPageScreen> {
 
     var file = formatFile();
 
-    final result = await Share.shareXFiles([XFile(filename)]);
+    final result = await Share.shareXFiles([XFile(file)]);
 
     if (result.status == ShareResultStatus.success) {
-      print('Thank you for sharing the picture!');
+      print('CHUPALOENTONCE');
     }
   }
 
@@ -146,9 +147,10 @@ class _LogPageState extends State<LogPageScreen> {
         LogStopwatch(
           _elapsedTime, 
           _stopwatchRunning,
-          _startStopwatch, 
-          _resetStopwatch, 
-          _download, ),
+          _toggleStopwatch, 
+          _download, 
+          _reset
+        ),
         const SizedBox(height: 60.0),
       ],
     );

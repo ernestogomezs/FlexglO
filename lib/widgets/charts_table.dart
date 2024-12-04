@@ -21,9 +21,9 @@ class _ChartsTableState extends State<ChartsTable>{
   @override
   void initState() {
     widget.elapsedTime.addListener((){
+      Provider.of<ChartsData>(context, listen: false).updateCharts();
       if(mounted){
         setState((){
-          Provider.of<ChartsData>(context, listen: false).updateCharts();
         });
       }
     });
@@ -36,31 +36,37 @@ class _ChartsTableState extends State<ChartsTable>{
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         TopBar(widget.stopwatchRunning),
-        Padding(
-          padding: EdgeInsets.all(5),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey, 
-                width: 1
-              ),
-              color: Colors.white,
-            ),
-            child: SizedBox(
-              height: 500,
-              child: SingleChildScrollView(
-                child: Consumer<ChartsData>(
-                  builder: (context, chartsData, child) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: chartsData.chartWidgets
-                    );     
-                  }
+        Consumer<ChartsData>(
+          builder: (context, chartsData, child){
+            return (chartsData.charts.isNotEmpty)
+              ? Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey, 
+                        width: 1
+                      ),
+                      color: Colors.white,
+                    ),
+                    child: SizedBox(
+                      height: 500,
+                      child: SingleChildScrollView(
+                        child: Consumer<ChartsData>(
+                          builder: (context, chartsData, child) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: chartsData.chartWidgets
+                            );     
+                          }
+                        )
+                      )
+                    )
+                  )
                 )
-              )
-            )
-          ),
-        ),
+              : Container();
+          }
+        )
       ]
     );
   }
@@ -97,33 +103,36 @@ class _TopBarState extends State<TopBar>{
       child: OverflowBar(  
         textDirection: TextDirection.rtl,
         children: [
-          Consumer<NodesData>(
-            builder: (context, nodesData, child) {
-              return DropdownButton<String>(
-                items: nodesData.availableMuscles.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                icon: nodesData.availableMuscles.isEmpty? 
-                  null : Icon(Icons.add, color: Colors.grey[800]),
-                isExpanded: true,
-                hint: Center(
-                  child: Text(
-                    nodesData.availableMuscles.isEmpty? 
-                      "Connect nodes to log data" :
-                      "Select muscle to record data",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[800]),
-                  )
-                ),
-                onChanged: (String? choice){
-                  nodesData.addChart(choice!);
-                  Provider.of<ChartsData>(context, listen: false).addChart(choice, widget.stopwatchRunning);
-                },
-              );
-            }
+          DropdownButtonHideUnderline(
+            child: Consumer<NodesData>(
+              builder: (context, nodesData, child) {
+                return DropdownButton<String>(
+                  items: nodesData.availableMuscles.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  icon: nodesData.availableMuscles.isEmpty? 
+                    null : Icon(Icons.add, color: Colors.grey[800]),
+                  iconDisabledColor: Colors.grey,
+                  isExpanded: true,
+                  hint: Center(
+                    child: Text(
+                      nodesData.availableMuscles.isEmpty? 
+                        "Connect nodes to log data" :
+                        "Select muscle to record data",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[800]),
+                    )
+                  ),
+                  onChanged: (String? choice){
+                    nodesData.addMuscle(choice!);
+                    Provider.of<ChartsData>(context, listen: false).addChart(choice, widget.stopwatchRunning);
+                  },
+                );
+              }
+            ),
           )
         ],
       ),

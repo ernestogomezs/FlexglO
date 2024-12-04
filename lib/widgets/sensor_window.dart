@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:oscilloscope/oscilloscope.dart';
@@ -13,8 +12,8 @@ class SensorWindowButton extends StatefulWidget{
   SensorWindowButton({Key? key, 
     required this.muscle,
     required this.muscleSite,
-    required this.node
-  });
+    required this.node,
+  }): super (key: key);
 
   final String muscle;
   final int muscleSite;

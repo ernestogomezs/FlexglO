@@ -1,64 +1,118 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 
-import '../utils/node.dart';
+import '/utils/node.dart';
+import '/utils/constants.dart';
 
-class HeartWindowButton extends StatelessWidget{
-  HeartWindowButton(this.node, {Key? key}): super (key: key);
-
+class HeartWindowButton extends StatefulWidget{
+  HeartWindowButton({required this.node, Key? key})
+    : super(key: key,);
+        
+  final String _muscle =  "heart";
+  final int _muscleSite = 0;
   final Node node;
+
+  @override
+  State<HeartWindowButton> createState() => _HeartWindowButtonState();
+}
+
+class _HeartWindowButtonState extends State<HeartWindowButton> {
+  late Color muscleColor = widget.node.gloFromMuscle(widget._muscleSite);
+  late ValueNotifier<double> _heartValue = ValueNotifier<double>(0);
+  late Timer _timer;
+  
+  @override
+  void initState() {
+    widget.node.connectionStateNotifier.addListener((){
+      if(widget.node.isConnected){
+        muscleColor = widget.node.gloFromMuscle(widget._muscleSite);
+      }
+      else{
+        muscleColor = Colors.black;
+      }
+      if(mounted){
+        setState((){});
+      }
+    });
+
+    widget.node.gloBytesNotifier.addListener((){
+      muscleColor = widget.node.gloFromMuscle(widget._muscleSite);
+      if(mounted){
+        setState((){});
+      }
+    });
+    int t = widget.node.bpmNotifier.value == 0? 0 : (BPM_TO_T_CONV/widget.node.bpmNotifier.value).toInt();
+    _timer = Timer.periodic(Duration(milliseconds: t), (Timer timer) {
+      setState(() {
+        _heartValue.value = (_heartValue.value == 0)? 1 : 0.2;
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
 
   @override
   Widget build(BuildContext context){
     return Padding(
       padding: const EdgeInsets.all(32.0),
-      child: GestureDetector(
-        onTap: () {
-          if(!node.connectionStateNotifier.value){
-            showDialog(
-              context: context,
-              builder: (BuildContext context){
-                return AlertDialog(
-                  title: Text('Node ${node.id} for Heart Rate Data is not connected'),
-                  content: Text('Make sure node ${node.id} is connected in the Bluetooth menu'),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => {
-                        Navigator.pop(context, 'OK')
-                      },
-                      child: const Text('OK'),
-                    ),
-                  ],
+      child: OpenContainer(
+        transitionDuration: Duration(milliseconds: 400),
+        closedBuilder: (context, openContainer){
+          return GestureDetector(
+            onTap: () {
+              if(!widget.node.connectionStateNotifier.value){
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context){
+                    return AlertDialog(
+                      title: Text('Node ${widget.node.id} for ${widget._muscle} is not connected'),
+                      content: Text('Make sure node ${widget.node.id} is connected in the Bluetooth menu'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => {
+                            Navigator.pop(context, 'OK')
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  }
                 );
               }
-            );
-          }
-          else{
-            Navigator.push(context, MaterialPageRoute(
-              builder: (context){
-                return HeartWindow(node);
+              else{
+                openContainer();
               }
-            ));
-          }
+            },
+            child: Material(
+              color: Colors.white,
+              elevation: 2,
+              child: ValueListenableBuilder(
+                valueListenable: _heartValue,
+                builder: (context, value, child) {
+                  return Icon(
+                    Icons.monitor_heart,
+                    size: 26,
+                    color: (widget.node.connectionStateNotifier.value)?
+                      Color.fromRGBO(0xff, 0, 0, value) :
+                      Colors.black
+                  );
+                }
+              )
+            )
+          );
         },
-        child: Hero(
-          tag: 'Heart',
-          child: Material(
-            color: Colors.blueGrey,
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5)
-            ),
-            child: const Icon(
-              Icons.monitor_heart,
-              size: 26,
-              color: Colors.white //Change to listener builder with glo bytes corresponding to muscleSite 
-            ),
-          )
-        ),
-      ),
+        openBuilder: (context, closeContainer){
+          return HeartWindow(widget.node);
+        }
+      )
     );
   }
 }
@@ -85,8 +139,8 @@ class _HeartWindowState extends State<HeartWindow> {
   @override
   initState() {
     super.initState();
-    int BPMValue = widget.node.bpmNotifier.value;
-    _timer = Timer.periodic(Duration(milliseconds: BPMValue), _beatHeart);
+    int t = widget.node.bpmNotifier.value == 0? 0 : (BPM_TO_T_CONV/widget.node.bpmNotifier.value).toInt();
+    _timer = Timer.periodic(Duration(milliseconds: t), _beatHeart);
   }
 
   @override
@@ -164,8 +218,10 @@ class HeartAnimationState extends State<HeartAnimation> with TickerProviderState
   void initState() {
     super.initState();
 
+    int t = widget.bpmNotifier.value == 0? 0 : (BPM_TO_T_CONV/widget.bpmNotifier.value).toInt();
     motionController = AnimationController(
-      duration: Duration(milliseconds: (1000*(widget.bpmNotifier.value/60)).toInt()),
+      
+      duration: Duration(milliseconds: t),
       vsync: this,
       lowerBound: 0.5,
     );
@@ -193,9 +249,9 @@ class HeartAnimationState extends State<HeartAnimation> with TickerProviderState
     });
 
     widget.bpmNotifier.addListener((){
-      motionController.duration = Duration(milliseconds: (1000*(widget.bpmNotifier.value/60)).toInt());
+      int t = widget.bpmNotifier.value == 0? 0 : (BPM_TO_T_CONV/widget.bpmNotifier.value).toInt();
+      motionController.duration = Duration(milliseconds: t);
     });
-    // motionController.repeat();
   }
 
   @override

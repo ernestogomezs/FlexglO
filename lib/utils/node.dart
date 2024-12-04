@@ -21,7 +21,6 @@ class Node{
 
   late ValueNotifier<bool> connectionStateNotifier = ValueNotifier<bool>(isConnected);
 
-
   Node.def(this.id){
     device = BluetoothDevice.fromId(DEFAULT_ID);
   }
@@ -47,7 +46,6 @@ class Node{
       if(id == 0){
         bpmNotifier.value = valuein[5] << 8 | valuein[4];
       }
-      
     });
     device.cancelWhenDisconnected(lastFlexSub);
     try{
@@ -81,20 +79,14 @@ class Node{
   } 
 
   void writeGloColor(Color currentColor, int muscleSite) async{
-    List<int> gloMsg = List<int>.filled(8, 0);
+    List<int> gloMsg = List<int>.from(gloBytesNotifier.value);
 
     if(muscleSite == 0){
       gloMsg[0] = currentColor.red;
       gloMsg[1] = currentColor.green;
       gloMsg[2] = currentColor.blue;
-      gloMsg[3] = gloBytesNotifier.value[3];
-      gloMsg[4] = gloBytesNotifier.value[4];
-      gloMsg[5] = gloBytesNotifier.value[5];
     }
     else if(muscleSite == 1){
-      gloMsg[0] = gloBytesNotifier.value[0];
-      gloMsg[1] = gloBytesNotifier.value[1];
-      gloMsg[2] = gloBytesNotifier.value[2];
       gloMsg[3] = currentColor.red;
       gloMsg[4] = currentColor.green;
       gloMsg[5] = currentColor.blue;
@@ -103,8 +95,7 @@ class Node{
     await gloCharacteristic.write(gloMsg);
   }
 
-  Future<List<int>> readGlo() async{
-    //gloCharacteristic.read().then((val) {gloBytesNotifier.value = val;});
+  List<int> readGlo() {
     return gloBytesNotifier.value;
   }
 

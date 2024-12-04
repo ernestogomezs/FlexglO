@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '/models/nodesdata.dart';
+
+import '/utils/constants.dart';
+
 import '/widgets/sensor_window.dart';
 import '/widgets/heart_window.dart';
 
@@ -18,91 +21,107 @@ class WindowMannequin extends StatelessWidget{
             alignment: AlignmentDirectional.center,
             children:<Widget>[
               SvgPicture.asset(
-                'assets/images/men_vector.svg', 
+                'assets/images/men_vector2.svg', 
               ),
+              // Builder(
+              //   builder: (context){
+              //     List<Widget> list = [];
+              //     for(int i = 0; i < MUSCLECOUNT; i++){
+              //       list += Align(
+              //         alignment: BUTTON_ALIGNMENTS[i],
+              //         child: SensorWindowButton(
+              //           muscle: MUSCLESITES[i], 
+              //           muscleSite: muscleSite, 
+              //           node: node
+              //         )
+              //       )
+              //     }
+              //     return list;
+              //   },
+              // ),
               Align(
-                alignment: Alignment(0.85, -0.53),
+                alignment: Alignment(0.75, -0.45),
                 child: SensorWindowButton(
-                  muscle: 'Left Bicep Brachii', 
+                  muscle: MUSCLESITES[0], 
                   muscleSite: 0,
                   node: Provider.of<NodesData>(context, listen: false).nodes[1]
                 )
               ),
               Align(
-                alignment: Alignment(-0.85, -0.53),
+                alignment: Alignment(-0.75, -0.45),
                 child: SensorWindowButton(
-                  muscle: 'Right Bicep Brachii',
-                  muscleSite: 0,
+                  muscle: MUSCLESITES[1],
+                  muscleSite: 1,
                   node: Provider.of<NodesData>(context, listen: false).nodes[4]
                 )
               ),
               Align(
-                alignment: Alignment(0.95, -0.20),
+                alignment: Alignment(0.85, -0.10),
                 child: SensorWindowButton(
-                  muscle: 'Left Tricep Brachii',
+                  muscle: MUSCLESITES[2],
                   muscleSite: 1,
                   node: Provider.of<NodesData>(context, listen: false).nodes[1]
                 )
               ),
               Align(
-                alignment: Alignment(-0.95, -0.20),
+                alignment: Alignment(-0.85, -0.10),
                 child: SensorWindowButton(
-                  muscle: 'Right Tricep Brachii',
-                  muscleSite: 1,
+                  muscle: MUSCLESITES[3],
+                  muscleSite: 0,
                   node: Provider.of<NodesData>(context, listen: false).nodes[4]
                 )
               ),
               Align(
-                alignment: Alignment(0.45, -0.13),
+                alignment: Alignment(0.35, -0.13),
                 child: SensorWindowButton(
-                  muscle: 'Left Pectoralis Major',
+                  muscle: MUSCLESITES[4],
+                  muscleSite: 1,
+                  node: Provider.of<NodesData>(context, listen: false).nodes[0]
+                )
+              ),
+              Align(
+                alignment: Alignment(-0.35, -0.13),
+                child: SensorWindowButton(
+                  muscle: MUSCLESITES[5],
                   muscleSite: 0,
                   node: Provider.of<NodesData>(context, listen: false).nodes[0]
                 )
               ),
               Align(
-                alignment: Alignment(-0.45, -0.13),
+                alignment: Alignment(0.40, 0.35),
                 child: SensorWindowButton(
-                  muscle: 'Right Pectoralis Major',
-                  muscleSite: 1,
-                  node: Provider.of<NodesData>(context, listen: false).nodes[0]
-                )
-              ),
-              Align(
-                alignment: Alignment(0.50, 0.35),
-                child: SensorWindowButton(
-                  muscle: 'Left Latissimus Dorsi',
+                  muscle: MUSCLESITES[6],
                   muscleSite: 1,
                   node: Provider.of<NodesData>(context, listen: false).nodes[2]
                 )
               ),
               Align(
-                alignment: Alignment(-0.50, 0.35),
+                alignment: Alignment(-0.40, 0.35),
                 child: SensorWindowButton(
-                  muscle: 'Right Latissimus Dorsi',
-                  muscleSite: 1,
+                  muscle: MUSCLESITES[7],
+                  muscleSite: 0,
                   node: Provider.of<NodesData>(context, listen: false).nodes[3]
                 )
               ),
               Align(
-                alignment: Alignment(0.55, -0.45),
+                alignment: Alignment(0.5, -0.4),
                 child: SensorWindowButton(
-                  muscle: 'Left Deltoid (Shoulder)',
+                  muscle: MUSCLESITES[8],
                   muscleSite: 0,
                   node: Provider.of<NodesData>(context, listen: false).nodes[2]
                 )
               ),
               Align(
-                alignment: Alignment(-0.55, -0.45),
+                alignment: Alignment(-0.5, -0.4),
                 child: SensorWindowButton(
-                  muscle: 'Right Deltoid (Shoulder)',
-                  muscleSite: 0,
+                  muscle: MUSCLESITES[9],
+                  muscleSite: 1,
                   node: Provider.of<NodesData>(context, listen: false).nodes[3]
                 )
               ),
               Align(
                 child: HeartWindowButton(
-                  Provider.of<NodesData>(context, listen: false).nodes[0]
+                  node: Provider.of<NodesData>(context, listen: false).nodes[0]
                 )
               )
             ]

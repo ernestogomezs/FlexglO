@@ -10,46 +10,13 @@ class WorkoutTable extends StatelessWidget {
                           Axis direction, 
                           {bool isRepTable = false}) {
 
-    int index = 0;
-    List<Container> list = [];
-
-    // array.map((row){
-    //   print('MMG');
-    //   print(row);
-    //   list += row.map((item){
-    //     print(item);
-    //     return Container(
-    //       decoration: BoxDecoration(
-    //       border: Border.all(color: color),
-    //       borderRadius: BorderRadius.circular(8.0),
-    //       ),
-    //       child: SizedBox(
-    //         width: 10,
-    //         child: Center(
-    //           child: Text(
-    //             item.toString(),
-    //             style: TextStyle(fontSize: 16),
-    //           ),
-    //         ),
-    //       ),
-    //     );
-    //   }).toList();
-    // });
-
     if(array.isEmpty){
-      return Text("No recorded reps", style: TextStyle(fontWeight: FontWeight.bold),);
+      return Text(
+        "No recorded reps", 
+        style: TextStyle(fontStyle: FontStyle.italic),
+      );
     }
     else{
-      // return SizedBox(
-      //   width: 100,
-      //   height: 400,
-      //   child: GridView.count(
-      //     crossAxisCount: MUSCLECOUNT,
-      //     crossAxisSpacing: 5,
-      //     mainAxisSpacing: 10,
-      //     children: list
-      //   ),
-      // );
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -75,7 +42,9 @@ class WorkoutTable extends StatelessWidget {
                   child: Center(
                     child: Text(
                       item.toString(),
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(
+                        fontSize: 16
+                      ),
                     ),
                   ),
                 ),
@@ -138,6 +107,27 @@ class WorkoutTable extends StatelessWidget {
     );
   }
 
+  Widget buildMuscleLabelRow(){
+    return Builder(
+      builder: (context){
+        List<Widget> list = [];
+        for(int i = 0; i < MUSCLECOUNT; ++i){
+          list.add(SizedBox(
+            width: 30,
+            child: Text(
+              MuscleGroups.values[i].toString()[0],
+              textAlign: TextAlign.center,
+            ),
+          ));
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: list,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -149,7 +139,9 @@ class WorkoutTable extends StatelessWidget {
                 "Last Recorded \nMuscle Activation", 
                 softWrap: true,
                 textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ), 
+              buildMuscleLabelRow(),
               ValueListenableBuilder(
                 valueListenable: Provider.of<Workout>(context, listen: false).functors, 
                 builder: (context, muscleRow, child){
@@ -157,7 +149,14 @@ class WorkoutTable extends StatelessWidget {
                   return buildRowWidget(row);
                 }
               ),
-              Text("Rep Table"), 
+
+              Expanded(child:Container()),
+
+              Text(
+                "Rep Table",
+                style: TextStyle(fontWeight: FontWeight.bold)
+              ), 
+              buildMuscleLabelRow(),
               ValueListenableBuilder(
                 valueListenable: Provider.of<Workout>(context, listen: false).table, 
                 builder: (context, table, child){
@@ -170,25 +169,11 @@ class WorkoutTable extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              Text("Last Recorded Rep"), 
-              Builder(
-                builder: (context){
-                  List<Widget> list = [];
-                  for(int i = 0; i < MUSCLECOUNT; ++i){
-                    list.add(SizedBox(
-                      width: 30,
-                      child: Text(
-                        MuscleGroups.values[i].toString()[0],
-                        textAlign: TextAlign.center,
-                      ),
-                    ));
-                  }
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: list,
-                  );
-                },
-              ),
+              Text(
+                "Last Recorded Rep",
+                style: TextStyle(fontWeight: FontWeight.bold)
+              ), 
+              buildMuscleLabelRow(),
               ValueListenableBuilder(
                 valueListenable: Provider.of<Workout>(context, listen: false).lastRep, 
                 builder: (context, table, child){
@@ -196,13 +181,16 @@ class WorkoutTable extends StatelessWidget {
                 }
               ),
           
-              SizedBox(height: 10),
+              Expanded(child:Container()),
           
               Align(
                 alignment: Alignment.bottomRight,
                 child: Column(
                   children: [
-                    Text("Muscle Rankings"), 
+                    Text(
+                      "Muscle Rankings",
+                      style: TextStyle(fontWeight: FontWeight.bold)
+                    ), 
                     ValueListenableBuilder(
                       valueListenable: Provider.of<Workout>(context, listen: false).rankings, 
                       builder: (context, table, child){
@@ -219,4 +207,3 @@ class WorkoutTable extends StatelessWidget {
     );
   }
 }
-

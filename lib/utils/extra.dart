@@ -35,7 +35,7 @@ extension Extra on BluetoothDevice {
     try {
       await connect(mtu: null);
       await connectionState.where((val) => val == BluetoothConnectionState.connected).first;
-      print("CONNECTION ESTABLISHED");
+      //print("CONNECTION ESTABLISHED");
     } finally {
       _cstream.add(false);
     }
