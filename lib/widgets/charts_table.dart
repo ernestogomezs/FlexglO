@@ -5,12 +5,7 @@ import '/models/chartsdata.dart';
 import '/models/nodesdata.dart';
 
 class ChartsTable extends StatefulWidget{
-  ChartsTable(this.elapsedTime, 
-              this.stopwatchRunning,
-              {Key? key}) : super(key: key);
-
-  final ValueNotifier<Duration> elapsedTime;
-  final ValueNotifier<bool> stopwatchRunning;
+  ChartsTable({Key? key}) : super(key: key);
 
   @override
   State<ChartsTable> createState() => _ChartsTableState();
@@ -20,9 +15,9 @@ class _ChartsTableState extends State<ChartsTable>{
 
   @override
   void initState() {
-    widget.elapsedTime.addListener((){
-      Provider.of<ChartsData>(context, listen: false).updateCharts();
+    Provider.of<ChartsData>(context, listen: false).elapsedTime.addListener((){     
       if(mounted){
+        Provider.of<ChartsData>(context, listen: false).updateCharts();
         setState((){
         });
       }
@@ -35,7 +30,7 @@ class _ChartsTableState extends State<ChartsTable>{
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        TopBar(widget.stopwatchRunning),
+        TopBar(),
         Consumer<ChartsData>(
           builder: (context, chartsData, child){
             return (chartsData.charts.isNotEmpty)
@@ -73,9 +68,7 @@ class _ChartsTableState extends State<ChartsTable>{
 }
 
 class TopBar extends StatefulWidget{
-  TopBar(this.stopwatchRunning, {Key? key}) : super(key: key);
-
-  final ValueNotifier<bool> stopwatchRunning;
+  TopBar({Key? key}) : super(key: key);
 
   @override
   State<TopBar> createState() => _TopBarState();
@@ -128,7 +121,7 @@ class _TopBarState extends State<TopBar>{
                   ),
                   onChanged: (String? choice){
                     nodesData.addMuscle(choice!);
-                    Provider.of<ChartsData>(context, listen: false).addChart(choice, widget.stopwatchRunning);
+                    Provider.of<ChartsData>(context, listen: false).addChart(choice);
                   },
                 );
               }

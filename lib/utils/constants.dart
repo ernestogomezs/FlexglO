@@ -50,10 +50,12 @@ const List<Color> COLORLIST = [
 const Color DEFAULTCOLOR = Color.fromRGBO(0, 0xFF, 0, 1.0);
 const List<int> DEFAULT_GLO = [0, 0xFF, 0, 0, 0xFF, 0, 0, 0];
 
+const int RMSAMTVALS = 5;
+
 const String DEFAULT_ID = "00000000-0000-0000-0000-000000000000";
 
 // Period (T) in milliseconds
-const double BPM_TO_T_CONV = 60000;
+const double BPM_TO_T_CONV = 60000/2;
 
 const int CHART_TIMESTEP_MS = 64;
 

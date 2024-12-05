@@ -8,6 +8,7 @@ import '/utils/constants.dart';
 
 import '/widgets/sensor_window.dart';
 import '/widgets/heart_window.dart';
+import '/widgets/face_picture.dart';
 
 class WindowMannequin extends StatelessWidget{
   @override
@@ -38,6 +39,10 @@ class WindowMannequin extends StatelessWidget{
               //     }
               //     return list;
               //   },
+              // ),
+              // Align(
+              //   alignment: Alignment(0, -0.6),
+              //   child: FacePicture()
               // ),
               Align(
                 alignment: Alignment(0.75, -0.45),

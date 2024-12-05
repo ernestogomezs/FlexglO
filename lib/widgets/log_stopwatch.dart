@@ -4,18 +4,9 @@ import 'package:provider/provider.dart';
 import '/models/chartsdata.dart';
 
 class LogStopwatch extends StatefulWidget{
-  LogStopwatch(this.elapsedTime,
-               this.stopwatchRunning,
-               this.toggleStopwatch, 
-               this.download,
-               this.clear,
-               {Key? key}) : super(key: key);
+  LogStopwatch(this.download,{Key? key}) : super(key: key);
 
-  final ValueNotifier<Duration> elapsedTime;
-  final ValueNotifier<bool> stopwatchRunning;
-  final VoidCallback? toggleStopwatch;
   final VoidCallback? download;
-  final VoidCallback? clear;
 
   @override
   State<LogStopwatch> createState() => _LogStopwatchState();
@@ -40,7 +31,7 @@ class _LogStopwatchState extends State<LogStopwatch>{
         children: <Widget>[
           // Display elapsed time
           ValueListenableBuilder<Duration>(
-            valueListenable: widget.elapsedTime, 
+            valueListenable: Provider.of<ChartsData>(context, listen: false).elapsedTime, 
             builder:(context, elapsedTime, child){
               return Text(
                 _formatElapsedTime(elapsedTime),
@@ -51,28 +42,32 @@ class _LogStopwatchState extends State<LogStopwatch>{
 
           const SizedBox(height: 20.0),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed: Provider.of<ChartsData>(context, listen: false).charts.isEmpty
-                  ? null : widget.toggleStopwatch,
-                child: Text(widget.stopwatchRunning.value? 'Stop Session' : 'Start Session'),
-              ),
-              const SizedBox(width: 10.0),
-              ElevatedButton(
-                onPressed: 
-                  (widget.elapsedTime.value.inMilliseconds == 0)
-                    ? null : widget.download,
-                child: Icon(Icons.download),
-              ),
-              const SizedBox(width: 10.0),
-              ElevatedButton(
-                onPressed: (widget.elapsedTime.value.inMilliseconds == 0)
-                  ? null : widget.clear,
-                child: Icon(Icons.replay),
-              ),
-            ],
+          Consumer<ChartsData>(
+            builder: (context, chartsData, child){
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: chartsData.charts.isEmpty
+                      ? null : chartsData.toggleStopwatch,
+                    child: Text(chartsData.stopwatchRunning.value? 'Stop Session' : 'Start Session'),
+                  ),
+                  const SizedBox(width: 10.0),
+                  ElevatedButton(
+                    onPressed: 
+                      (chartsData.elapsedTime.value.inMilliseconds == 0)
+                        ? null : widget.download,
+                    child: Icon(Icons.download),
+                  ),
+                  const SizedBox(width: 10.0),
+                  ElevatedButton(
+                    onPressed: (chartsData.elapsedTime.value.inMilliseconds == 0)
+                      ? null : () => chartsData.reset(),
+                    child: Icon(Icons.replay),
+                  ),
+                ],
+              );
+            }
           ),
         ],
       ),

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'package:share_plus/share_plus.dart';
@@ -20,54 +22,18 @@ class LogPageScreen extends StatefulWidget{
 }
 
 class _LogPageState extends State<LogPageScreen> {
-  final Stopwatch _stopwatch = Stopwatch();
-  late ValueNotifier<Duration> _elapsedTime = ValueNotifier<Duration>(Duration.zero);
-  late Timer _timer;
-  late ValueNotifier<bool> _stopwatchRunning = ValueNotifier<bool>(false);
-
   late String filename = '';
 
   @override
   initState(){
-    _elapsedTime.value = Duration.zero;
-    _timer = Timer.periodic(const Duration(milliseconds: CHART_TIMESTEP_MS), (Timer timer) {
-      setState(() {
-        if (_stopwatch.isRunning) {
-          _updateElapsedTime();
-        }
-      });
-    });
-
     super.initState();
   }
 
-  void _toggleStopwatch() {
-    if(!_stopwatch.isRunning) {
-      _reset();
-      _stopwatch.start();
-    } 
-    else{
-      _stopwatch.stop();
-    }
-    _updateElapsedTime();
-    _stopwatchRunning.value = _stopwatch.isRunning;
-  }
-
-  void _reset(){
-    _stopwatch.reset();
-    _updateElapsedTime();
-    Provider.of<ChartsData>(context, listen: false).resetCharts();
-  }
-
-  void _updateElapsedTime() {
-    setState(() {
-      _elapsedTime.value = _stopwatch.elapsed;
-    });
-  }
-
   Future<bool?> _raiseFilenameDialog() async{
+    
     var nowTime = DateTime.now();
     String str = 'Session_from_${nowTime.month}-${nowTime.day}-${nowTime.year}';
+    TextEditingController contr = TextEditingController(text: str);
 
     return showDialog<bool>(
       context: context,
@@ -76,7 +42,7 @@ class _LogPageState extends State<LogPageScreen> {
           title: const Text('Download File'),
           actions: <Widget>[
             TextFormField(
-              controller: TextEditingController(text: str),
+              controller: contr,
               decoration: const InputDecoration(
                 icon: Icon(Icons.file_copy),
                 labelText: 'Filename',
@@ -84,6 +50,7 @@ class _LogPageState extends State<LogPageScreen> {
             ),
             TextButton(
               onPressed: () => {
+                filename = contr.text,
                 Navigator.pop(context, true)
               },
               child: const Text('Save File'),
@@ -95,23 +62,21 @@ class _LogPageState extends State<LogPageScreen> {
   }
 
   String formatFile(){
-    var chartsdata = Provider.of<ChartsData>(context, listen: false);
-    int numSteps = _elapsedTime.value.inMilliseconds~/CHART_TIMESTEP_MS;
+    var chartsData = Provider.of<ChartsData>(context, listen: false);
+    int numSteps = chartsData.elapsedTime.value.inMilliseconds~/CHART_TIMESTEP_MS;
     List<List<dynamic>> listofLists = [];
 
     List<dynamic> header = ['Time'];
     for(double i = 0; i < numSteps; i = i + 0.001){
-      header.add(i);
+      header.add(i.toStringAsPrecision(2));
     }
     listofLists.add(header);
 
-    for(int i = 0; i < chartsdata.charts.length; i++){
-      listofLists.add(<dynamic>[chartsdata.charts[i].muscle, ...chartsdata.charts[i].data]);
+    for(int i = 0; i < chartsData.charts.length; i++){
+      listofLists.add(<dynamic>[chartsData.charts[i].muscle, ...chartsData.charts[i].data]);
     }
 
-    String csv = const ListToCsvConverter().convert(listofLists);
-
-    return csv;
+    return ListToCsvConverter().convert(listofLists);
   } 
 
   void _download() async{
@@ -121,17 +86,13 @@ class _LogPageState extends State<LogPageScreen> {
 
     var file = formatFile();
 
-    final result = await Share.shareXFiles([XFile(file)]);
+    final result = 
+      await Share.shareXFiles([XFile.fromData(utf8.encode(file), mimeType: 'text/plain')], 
+        fileNameOverrides: ['$filename.csv']);
 
     if (result.status == ShareResultStatus.success) {
-      print('CHUPALOENTONCE');
+      //print('CHUPALOENTONCE');
     }
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
   }
   
   @override
@@ -139,17 +100,10 @@ class _LogPageState extends State<LogPageScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        ChartsTable(
-          _elapsedTime,
-          _stopwatchRunning,
-        ),
+        ChartsTable(),
         const SizedBox(height: 20.0),
         LogStopwatch(
-          _elapsedTime, 
-          _stopwatchRunning,
-          _toggleStopwatch, 
-          _download, 
-          _reset
+          _download
         ),
         const SizedBox(height: 60.0),
       ],

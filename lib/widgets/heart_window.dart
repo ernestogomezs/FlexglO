@@ -46,8 +46,9 @@ class _HeartWindowButtonState extends State<HeartWindowButton> {
     });
     int t = widget.node.bpmNotifier.value == 0? 0 : (BPM_TO_T_CONV/widget.node.bpmNotifier.value).toInt();
     _timer = Timer.periodic(Duration(milliseconds: t), (Timer timer) {
+      //print(t);
       setState(() {
-        _heartValue.value = (_heartValue.value == 0)? 1 : 0.2;
+        _heartValue.value = (_heartValue.value == 0.2)? 1 : 0.2;
       });
     });
     super.initState();
@@ -169,25 +170,35 @@ class _HeartWindowState extends State<HeartWindow> {
                 builder:(context, bpmValue, child){
                   return Container(
                     padding: EdgeInsets.all(40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      textDirection: TextDirection.ltr,
-                      children:[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            "Beats per minute: ",
-                            style: Theme.of(context).textTheme.bodyLarge
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        textDirection: TextDirection.ltr,
+                        children:[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Beats per minute: ",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              )
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            "$bpmValue",
-                            style: Theme.of(context).textTheme.bodyLarge
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "$bpmValue",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              )
+                            ),
                           ),
-                        ),
-                      ]
+                        ]
+                      ),
                     ),
                   );
                 }

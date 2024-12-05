@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '/utils/constants.dart';
 
@@ -12,15 +15,62 @@ class Chart{
   final ValueNotifier<bool> stopwatchRunning;
   late ValueNotifier<int> muscleValue;
   late List<int> data = [];
+  late List<FlSpot> points = [];
 }
 
 class ChartsData extends ChangeNotifier {
-  List<Chart> charts = [];  
-  List<ChartWidget> chartWidgets = [];
-  
-  ChartsData(BuildContext context);
+  final List<Chart> charts = [];  
+  final List<ChartWidget> chartWidgets = [];
+  final Stopwatch stopwatch = Stopwatch();
+  final ValueNotifier<Duration> elapsedTime = ValueNotifier<Duration>(Duration.zero);
+  final ValueNotifier<bool> stopwatchRunning = ValueNotifier<bool>(false);
 
-  void addChart(String muscle, ValueNotifier<bool> stopwatchRunning) {
+  late Timer timer;
+  
+  ChartsData(BuildContext context){
+    elapsedTime.value = Duration.zero;
+    timer = Timer.periodic(const Duration(milliseconds: CHART_TIMESTEP_MS), 
+      (Timer timer) {
+        if (stopwatch.isRunning) {
+          _updateElapsedTime();
+        }
+      }
+    );
+
+    elapsedTime.addListener((){     
+      updateCharts();
+    });
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  void toggleStopwatch() {
+    if(!stopwatch.isRunning) {
+      reset();
+      stopwatch.start();
+    } 
+    else{
+      stopwatch.stop();
+    }
+    _updateElapsedTime();
+    stopwatchRunning.value = stopwatch.isRunning;
+  }
+
+  void reset(){
+    stopwatch.reset();
+    _updateElapsedTime();
+    resetCharts();
+  }
+
+  void _updateElapsedTime() {
+    elapsedTime.value = stopwatch.elapsed;
+  }
+
+  void addChart(String muscle) {
     charts.add(Chart(muscle, DEFAULTCOLOR, stopwatchRunning));
     chartWidgets.add(ChartWidget(charts.last));
     notifyListeners();
@@ -38,6 +88,7 @@ class ChartsData extends ChangeNotifier {
     
     for(final chart in charts){
       chart.data.clear();
+      chart.points.clear();
     }
     notifyListeners();
   }

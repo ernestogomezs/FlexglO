@@ -29,6 +29,7 @@ class Workout extends ChangeNotifier{
     ]);
 
   Workout(BuildContext context){
+
     // List of notifiers that change based on the max value read between two other notifiers
     NodesData nodesData = Provider.of<NodesData>(context, listen: false);
     
@@ -39,8 +40,6 @@ class Workout extends ChangeNotifier{
       var notifierR = nodesData.notifierFromMuscle(MUSCLESITES[mR]);
 
       functors.insert(MaxValueNotifier(0, notifierL, notifierR, muscleGroup), muscleGroup);
-
-      print('a');
 
       nodesData.notifierFromMuscle(MUSCLESITES[mL]).addListener((){
         functors.value[muscleGroup].getMaxMuscle();
